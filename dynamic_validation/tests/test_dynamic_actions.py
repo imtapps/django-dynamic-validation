@@ -12,10 +12,14 @@ class BaseDynamicActionTests(unittest.TestCase):
 
     def setUp(self):
         self.rule_model = models.Rule(pk=1)
-        self.action = BaseDynamicAction(self.rule_model)
+        self.validation_object = mock.Mock()
+        self.action = BaseDynamicAction(self.rule_model, self.validation_object)
 
     def test_saves_rule_model_on_instance(self):
         self.assertEqual(self.rule_model, self.action.rule_model)
+
+    def test_saves_validation_object_on_instance(self):
+        self.assertEqual(self.validation_object, self.action.validation_object)
 
     @mock.patch.object(BaseDynamicAction, 'get_current_violations')
     def test_run_calls_get_current_violations_with_args_and_kwargs(self, get_current_violations):

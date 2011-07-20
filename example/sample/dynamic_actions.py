@@ -2,18 +2,11 @@
 from django import forms
 
 from dynamic_validation import site
-
-class Base(object):
-
-    def __init__(self, rule_model):
-        self.rule_model = rule_model
-
-    def run(self, team):
-        print "Running for %s" % team
+from dynamic_validation.dynamic_actions import BaseDynamicAction
 
 
 @site.register
-class GenderRatio(Base):
+class GenderRatio(BaseDynamicAction):
     key = "GenderRatio"
     display_name = "Ratio of Men to Women must be within x%."
 
@@ -22,7 +15,7 @@ class GenderRatio(Base):
     }
 
 @site.register
-class LimitNumberOfPlayersUnderAge(Base):
+class LimitNumberOfPlayersUnderAge(BaseDynamicAction):
     key = "LimitNumberOfPlayersUnderAge"
     display_name = "Limit the number of players under a given age"
 
@@ -32,7 +25,7 @@ class LimitNumberOfPlayersUnderAge(Base):
     }
 
 @site.register
-class RangeOfAveragePlayerAge(Base):
+class RangeOfAveragePlayerAge(BaseDynamicAction):
     key = "RangeOfAveragePlayerAge"
     display_name = "the average age of all players on a team must be within an allowed range."
 

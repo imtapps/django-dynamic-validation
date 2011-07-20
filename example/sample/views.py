@@ -9,7 +9,7 @@ class Index(TemplateView):
 
     def get(self, request, *args, **kwargs):
         for league in sample_models.League.objects.all():
-            league_rules = validation_models.Rule.objects.get_by_related_object(league)
+            league_rules = validation_models.Rule.objects.get_by_group_object(league)
             for team in league.teams.all():
                 for rule in league_rules:
                     rule.run_action(team)

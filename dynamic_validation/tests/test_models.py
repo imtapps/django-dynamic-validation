@@ -14,13 +14,13 @@ class RuleManagerTests(unittest.TestCase):
     @mock.patch.object(ContentType.objects, 'get_for_model')
     def test_get_content_type_for_model_in_get_by_related_object(self, get_for_model):
         manager = mock.Mock(spec_set=models.RuleManager)
-        models.RuleManager.get_by_related_object(manager, self.model_one)
+        models.RuleManager.get_by_group_object(manager, self.model_one)
         get_for_model.assert_called_once_with(self.model_one)
 
     @mock.patch.object(ContentType.objects, 'get_for_model')
     def test_get_by_related_object_returns_rules_for_related_object(self, get_for_model):
         manager = mock.Mock(spec_set=models.RuleManager)
-        rules = models.RuleManager.get_by_related_object(manager, self.model_one)
+        rules = models.RuleManager.get_by_group_object(manager, self.model_one)
 
         manager.filter.assert_called_once_with(
             content_type=get_for_model.return_value,
@@ -38,10 +38,11 @@ class RuleModelTests(unittest.TestCase):
         site.register(rule_class)
         args = [mock.Mock()]
         kwargs = {'my_mock': mock.Mock()}
+        validation_object = mock.Mock()
         try:
             rule = models.Rule(key=rule_class.key)
-            rule.run_action(*args, **kwargs)
-            rule_class.assert_called_once_with(rule)
+            rule.run_action(validation_object, *args, **kwargs)
+            rule_class.assert_called_once_with(rule, validation_object)
             rule_class.return_value.run.assert_called_once_with(*args, **kwargs)
         finally:
             site.unregister(rule_class)

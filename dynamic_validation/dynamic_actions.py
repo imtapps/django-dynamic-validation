@@ -1,10 +1,13 @@
 
 class BaseDynamicAction(object):
 
-    def __init__(self, rule_model):
+    def __init__(self, rule_model, validation_object):
         self.rule_model = rule_model
+        self.validation_object = validation_object
 
     def run(self, *args, **kwargs):
+
+        print "Running for %s" % self.validation_object
         current_violations = self.get_current_violations(*args, **kwargs)
         matching_violations = self.get_matching_violations(current_violations)
         self.save_violations(matching_violations, current_violations)

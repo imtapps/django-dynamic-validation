@@ -8,7 +8,7 @@ from dynamic_validation import site
 
 class RuleManager(models.Manager):
 
-    def get_by_related_object(self, obj):
+    def get_by_group_object(self, obj):
         content_type = ContentType.objects.get_for_model(obj)
         return self.filter(content_type=content_type, group_object_id=obj.pk)
 
@@ -26,6 +26,11 @@ class Rule(models.Model):
     def __unicode__(self):
         return self.name
 
-    def run_action(self, *args, **kwargs):
+    def run_action(self, validation_object, *args, **kwargs):
         rule_class = site.get_rule_class(self.key)
-        rule_class(self).run(*args, **kwargs)
+        rule_class(self, validation_object).run(*args, **kwargs)
+
+#class RuleViolation(models.Model):
+#    content_type = models.ForeignKey('contenttypes.ContentType')
+#    validation_object_id = models.PositiveIntegerField(db_index=True)
+#    validation_object = generic.GenericForeignKey(fk_field='validation_object_id')
