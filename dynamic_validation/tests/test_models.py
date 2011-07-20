@@ -78,7 +78,7 @@ class ViolationManagerTests(unittest.TestCase):
         rule = models.Rule(pk=1)
         manager = mock.Mock(spec_set=models.ViolationManager)
 
-        violations = models.ViolationManager.get_rule_violations(manager, rule, self.model)
+        violations = models.ViolationManager.get_violations_for_rule(manager, rule, self.model)
         manager.get_by_validation_object.assert_called_once_with(self.model)
         base_query = manager.get_by_validation_object.return_value
         base_query.filter.assert_called_once_with(rule=rule)

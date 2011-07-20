@@ -37,7 +37,7 @@ class ViolationManager(models.Manager):
         content_type = ContentType.objects.get_for_model(obj)
         return self.filter(content_type=content_type, validation_object_id=obj.pk)
 
-    def get_rule_violations(self, rule, validation_object):
+    def get_violations_for_rule(self, rule, validation_object):
         base_query = self.get_by_validation_object(validation_object)
         return base_query.filter(rule=rule)
 

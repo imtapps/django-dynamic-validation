@@ -78,3 +78,38 @@ class BaseDynamicActionTests(unittest.TestCase):
         self.assertEqual(self.rule_model, violation.rule)
         self.assertEqual(self.validation_object, violation.validation_object)
 
+    @mock.patch.object(models.Violation.objects, 'get_violations_for_rule')
+    def test_get_matching_violations_gets_existing_violations(self, get_violations):
+        get_violations.return_value = []
+        
+        self.action.get_matching_violations([])
+        get_violations.assert_called_once_with(self.rule_model, self.validation_object)
+
+    @mock.patch.object(models.Violation.objects, 'get_violations_for_rule')
+    def test_get_matching_violations_returns_list_violations_that_are_existing_and_current(self, get_violations):
+        violation = mock.Mock(spec_set=models.Violation)
+        violation2 = mock.Mock(spec_set=models.Violation)
+        get_violations.return_value = [violation, violation2]
+
+        matched_violations = self.action.get_matching_violations([violation])
+        self.assertEqual([violation], matched_violations)
+
+    @mock.patch.object(models.Violation.objects, 'get_violations_for_rule')
+    def test_get_matching_violations_deletes_existing_violations_that_are_not_current(self, get_violations):
+        violation = mock.Mock(spec_set=models.Violation)
+        violation2 = mock.Mock(spec_set=models.Violation)
+        get_violations.return_value = [violation, violation2]
+
+        self.action.get_matching_violations([violation])
+        self.assertFalse(violation.delete.called)
+        violation2.delete.assert_called_once_with()
+
+    def test_save_violations_saves_current_violations_not_matched(self):
+        violation = mock.Mock(spec_set=models.Violation)
+        violation2 = mock.Mock(spec_set=models.Violation)
+        violation3 = mock.Mock(spec_set=models.Violation)
+
+        self.action.save_violations([violation3], [violation, violation2])
+        violation.save.assert_called_once_with()
+        violation2.save.assert_called_once_with()
+        self.assertFalse(violation3.save.called)
