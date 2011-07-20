@@ -43,4 +43,4 @@ class RuleForm(BaseAjaxModelForm):
 
     class Meta(object):
         model = models.Rule
-        fields = ('name', 'key', 'related_object_id', 'content_type')
+        fields = ('name', 'key', 'group_object_id', 'content_type')

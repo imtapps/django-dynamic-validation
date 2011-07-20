@@ -24,7 +24,7 @@ class RuleManagerTests(unittest.TestCase):
 
         manager.filter.assert_called_once_with(
             content_type=get_for_model.return_value,
-            related_object_id=self.model_one.pk,
+            group_object_id=self.model_one.pk,
         )
         self.assertEqual(manager.filter.return_value, rules)
 

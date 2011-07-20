@@ -9,10 +9,20 @@ from dynamic_validation import admin as validation_admin
 
 from sample import models
 
+class TeamAdmin(admin.ModelAdmin):
+    list_display = ('name', 'league')
+    list_filter = ('league',)
+
+class PlayerAdmin(admin.ModelAdmin):
+    list_display = ('name', 'age', 'gender', 'team', )
+    list_filter = ('team','team__league')
+
+
+
 class RuleForm(admin_forms.RuleForm):
     def __init__(self, *args, **kwargs):
         super(RuleForm, self).__init__(*args, **kwargs)
-        self.fields['related_object_id'] = forms.ChoiceField(
+        self.fields['group_object_id'] = forms.ChoiceField(
             choices=((l.pk, l) for l in models.League.objects.all()),
             label="League",
         )
@@ -24,23 +34,15 @@ class RuleForm(admin_forms.RuleForm):
 
     class Meta(object):
         model = validation_models.Rule
-        fields = ('name', 'key', 'related_object_id')
-
-class TeamAdmin(admin.ModelAdmin):
-    list_display = ('name', 'league')
-    list_filter = ('league',)
-
-class PlayerAdmin(admin.ModelAdmin):
-    list_display = ('name', 'age', 'gender', 'team', )
-    list_filter = ('team','team__league')
+        fields = ('name', 'key', 'group_object_id')
 
 class RuleAdmin(validation_admin.RuleAdmin):
     form = RuleForm
-    list_display = ('name', 'related_obj')
+    list_display = ('name', 'group_obj')
 
-    def related_obj(self, obj):
-        return obj.related_object
-    related_obj.short_description = "League"
+    def group_obj(self, obj):
+        return obj.group_object
+    group_obj.short_description = "League"
 
 admin.site.unregister(validation_models.Rule)
 admin.site.register(validation_models.Rule, RuleAdmin)
