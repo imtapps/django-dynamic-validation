@@ -46,3 +46,50 @@ class RuleModelTests(unittest.TestCase):
             rule_class.return_value.run.assert_called_once_with(*args, **kwargs)
         finally:
             site.unregister(rule_class)
+
+class ViolationModelTests(unittest.TestCase):
+
+    def test_validation_object_rule_and_key_are_unique(self):
+        self.assertItemsEqual(
+            [('validation_object_id', 'content_type', 'rule', 'key')],
+            models.Violation._meta.unique_together)
+
+    def get_violation(self, **kwargs):
+        return models.Violation(
+            pk=kwargs.get('pk'),
+            key=kwargs.get('key', "abc"),
+            rule=kwargs.get("rule", models.Rule(pk=100)),
+            violated_fields=kwargs.get("violated_fields", {'field': 'one'}),
+            content_type=kwargs.get("content_type", ContentType(pk=10)),
+            validation_object_id=kwargs.get("validation_object_id", 1),
+            )
+
+    def test_violations_are_equal_when_validation_object_rule_key_and_fields_match(self):
+        violation_one = self.get_violation(pk=1)
+        violation_two = self.get_violation()
+        self.assertEqual(violation_two, violation_one)
+
+    def test_violations_are_not_equal_when_key_doesnt_match(self):
+        violation_one = self.get_violation(key="123")
+        violation_two = self.get_violation()
+        self.assertNotEqual(violation_two, violation_one)
+
+    def test_violations_are_not_equal_when_rule_doesnt_match(self):
+        violation_one = self.get_violation(rule=models.Rule(pk=99))
+        violation_two = self.get_violation()
+        self.assertNotEqual(violation_two, violation_one)
+
+    def test_violations_are_not_equal_when_content_type_doesnt_match(self):
+        violation_one = self.get_violation(content_type=ContentType(pk=99))
+        violation_two = self.get_violation()
+        self.assertNotEqual(violation_two, violation_one)
+
+    def test_violations_are_not_equal_when_validation_object_id_doesnt_match(self):
+        violation_one = self.get_violation(validation_object_id=99)
+        violation_two = self.get_violation()
+        self.assertNotEqual(violation_two, violation_one)
+
+    def test_violations_are_not_equal_when_violated_fields_doesnt_match(self):
+        violation_one = self.get_violation(violated_fields={'a_value': 99})
+        violation_two = self.get_violation()
+        self.assertNotEqual(violation_two, violation_one)

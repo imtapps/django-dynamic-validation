@@ -1,4 +1,6 @@
 
+from dynamic_validation.models import Violation
+
 class BaseDynamicAction(object):
 
     def __init__(self, rule_model, validation_object):
@@ -6,8 +8,6 @@ class BaseDynamicAction(object):
         self.validation_object = validation_object
 
     def run(self, *args, **kwargs):
-
-        print "Running for %s" % self.validation_object
         current_violations = self.get_current_violations(*args, **kwargs)
         if not isinstance(current_violations, list):
             raise TypeError("get_current_violations must return a list.")
@@ -16,7 +16,6 @@ class BaseDynamicAction(object):
         self.save_violations(matching_violations, current_violations)
 
     def get_current_violations(self, *args, **kwargs):
-
         raise NotImplementedError
 
     def get_matching_violations(self, current_violations):
@@ -26,7 +25,10 @@ class BaseDynamicAction(object):
         pass
 
     def create_violation(self, key, message, violated_fields):
-        print "Creating violation for"
-        print "Key: %s" % key
-        print "Message: %s" % message
-        print "Fields: %s" % violated_fields
+        return Violation(
+            rule=self.rule_model,
+            validation_object=self.validation_object,
+            key=key,
+            message=message,
+            violated_fields=violated_fields,
+        )

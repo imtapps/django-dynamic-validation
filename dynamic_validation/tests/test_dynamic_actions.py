@@ -1,5 +1,7 @@
 import mock
-from django.utils import unittest
+
+from django import test as unittest
+from django.contrib.auth.models import User
 
 from dynamic_validation import models
 from dynamic_validation.dynamic_actions import BaseDynamicAction
@@ -8,11 +10,12 @@ __all__ = (
     'BaseDynamicActionTests',
 )
 
+
 class BaseDynamicActionTests(unittest.TestCase):
 
     def setUp(self):
         self.rule_model = models.Rule(pk=1)
-        self.validation_object = mock.Mock()
+        self.validation_object = User.objects.create(username="test_admin")
         self.action = BaseDynamicAction(self.rule_model, self.validation_object)
 
     def test_saves_rule_model_on_instance(self):
@@ -56,3 +59,22 @@ class BaseDynamicActionTests(unittest.TestCase):
     def test_raises_type_error_when_get_current_violations_does_not_return_list(self):
         with self.assertRaises(TypeError):
             self.action.run()
+
+    def test_create_violation_returns_unsaved_rule_violation(self):
+        key = "key"
+        message = "message"
+        violated_fields = {'my_field': 'value'}
+
+        violation = self.action.create_violation(
+            key=key,
+            message=message,
+            violated_fields=violated_fields,)
+
+        self.assertIsInstance(violation, models.Violation)
+        self.assertEqual(None, violation.pk)
+        self.assertEqual(key, violation.key)
+        self.assertEqual(message, violation.message)
+        self.assertEqual(violated_fields, violation.violated_fields)
+        self.assertEqual(self.rule_model, violation.rule)
+        self.assertEqual(self.validation_object, violation.validation_object)
+

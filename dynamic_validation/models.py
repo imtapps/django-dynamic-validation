@@ -30,7 +30,24 @@ class Rule(models.Model):
         rule_class = site.get_rule_class(self.key)
         rule_class(self, validation_object).run(*args, **kwargs)
 
-#class RuleViolation(models.Model):
-#    content_type = models.ForeignKey('contenttypes.ContentType')
-#    validation_object_id = models.PositiveIntegerField(db_index=True)
-#    validation_object = generic.GenericForeignKey(fk_field='validation_object_id')
+class Violation(models.Model):
+    content_type = models.ForeignKey('contenttypes.ContentType')
+    validation_object_id = models.PositiveIntegerField(db_index=True)
+    validation_object = generic.GenericForeignKey(fk_field='validation_object_id')
+
+    rule = models.ForeignKey(Rule)
+    key = models.CharField(max_length=30, help_text="A unique key to make this violation object unique with the rule.")
+    message = models.CharField(max_length=100)
+    violated_fields = helper_fields.PickleField()
+
+    class Meta(object):
+        unique_together = ('validation_object_id', 'content_type', 'rule', 'key')
+
+    def __eq__(self, other):
+        return all([
+            self.validation_object_id == other.validation_object_id,
+            self.content_type == other.content_type,
+            self.rule == other.rule,
+            self.key == other.key,
+            self.violated_fields == other.violated_fields,
+        ])
