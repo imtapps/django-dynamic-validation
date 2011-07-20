@@ -21,6 +21,9 @@ class Registry(object):
 
         return rule_class
 
+    def unregister(self, rule_class):
+        self._registry.pop(rule_class.key, None)
+
     def get_rule_class(self, key):
         if key not in self._registry:
             raise NotRegistered("Rule key %s has not been registered." % key)

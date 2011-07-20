@@ -46,3 +46,12 @@ class RegistryTests(unittest.TestCase):
     def test_register_returns_class_so_that_it_can_be_used_as_a_decorator(self):
         registered_rule = self.registry.register(RuleTwo)
         self.assertEqual(RuleTwo, registered_rule)
+
+    def test_unregister_removes_class_from_registry(self):
+        self.registry.unregister(self.rule)
+        self.assertEqual({}, self.registry._registry)
+
+    def test_unregister_does_not_remove_what_is_not_there(self):
+        self.registry.unregister(RuleTwo)
+        self.assertEqual({self.rule.key:self.rule}, self.registry._registry)
+
