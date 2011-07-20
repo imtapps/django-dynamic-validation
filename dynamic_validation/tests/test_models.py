@@ -93,3 +93,8 @@ class ViolationModelTests(unittest.TestCase):
         violation_one = self.get_violation(violated_fields={'a_value': 99})
         violation_two = self.get_violation()
         self.assertNotEqual(violation_two, violation_one)
+
+    def test_violations_are_not_equal_when_other_object_is_not_violation_model(self):
+        violation = self.get_violation()
+        self.assertNotEqual(violation, models.Rule())
+

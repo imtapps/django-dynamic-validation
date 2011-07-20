@@ -44,6 +44,9 @@ class Violation(models.Model):
         unique_together = ('validation_object_id', 'content_type', 'rule', 'key')
 
     def __eq__(self, other):
+        if not isinstance(other, self.__class__):
+            return False
+        
         return all([
             self.validation_object_id == other.validation_object_id,
             self.content_type == other.content_type,
