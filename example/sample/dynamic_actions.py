@@ -28,7 +28,6 @@ class RangeOfAveragePlayerAge(object):
     display_name = "the average age of all players on a team must be within an allowed range."
 
     fields = {
-        'players': forms.IntegerField(help_text="Maximum players allowed below age."),
         'min_age': forms.IntegerField(help_text="Minimum average age allowed."),
         'max_age': forms.IntegerField(help_text="Maximum average age allowed."),
     }

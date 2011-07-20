@@ -2,11 +2,12 @@
 from django import forms
 from django.contrib import admin
 from django.contrib.contenttypes import models as contenttype_models
-from sample import models
 
 from dynamic_validation import admin_forms
 from dynamic_validation import models as validation_models
 from dynamic_validation import admin as validation_admin
+
+from sample import models
 
 class RuleForm(admin_forms.RuleForm):
     def __init__(self, *args, **kwargs):
@@ -35,6 +36,11 @@ class PlayerAdmin(admin.ModelAdmin):
 
 class RuleAdmin(validation_admin.RuleAdmin):
     form = RuleForm
+    list_display = ('name', 'related_obj')
+
+    def related_obj(self, obj):
+        return obj.related_object
+    related_obj.short_description = "League"
 
 admin.site.unregister(validation_models.Rule)
 admin.site.register(validation_models.Rule, RuleAdmin)
