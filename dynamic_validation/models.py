@@ -30,6 +30,18 @@ class Rule(models.Model):
         rule_class = site.get_rule_class(self.key)
         rule_class(self, validation_object).run(*args, **kwargs)
 
+
+class ViolationManager(models.Manager):
+
+    def get_by_validation_object(self, obj):
+        content_type = ContentType.objects.get_for_model(obj)
+        return self.filter(content_type=content_type, validation_object_id=obj.pk)
+
+    def get_rule_violations(self, rule, validation_object):
+        base_query = self.get_by_validation_object(validation_object)
+        return base_query.filter(rule=rule)
+
+
 class Violation(models.Model):
     content_type = models.ForeignKey('contenttypes.ContentType')
     validation_object_id = models.PositiveIntegerField(db_index=True)
@@ -39,6 +51,8 @@ class Violation(models.Model):
     key = models.CharField(max_length=30, help_text="A unique key to make this violation object unique with the rule.")
     message = models.CharField(max_length=100)
     violated_fields = helper_fields.PickleField()
+
+    objects = ViolationManager()
 
     class Meta(object):
         unique_together = ('validation_object_id', 'content_type', 'rule', 'key')

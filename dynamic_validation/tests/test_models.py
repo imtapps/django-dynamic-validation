@@ -5,20 +5,25 @@ from django.utils import unittest
 
 from dynamic_validation import models, site
 
+__all__ = (
+    'RuleManagerTests', 'RuleModelTests',
+    'ViolationManagerTests', 'ViolationModelTests',
+
+)
+
 class RuleManagerTests(unittest.TestCase):
 
     def setUp(self):
         self.model_one = mock.Mock()
-        self.model_two = mock.Mock()
 
     @mock.patch.object(ContentType.objects, 'get_for_model')
-    def test_get_content_type_for_model_in_get_by_related_object(self, get_for_model):
+    def test_get_content_type_for_model_in_get_by_group_object(self, get_for_model):
         manager = mock.Mock(spec_set=models.RuleManager)
         models.RuleManager.get_by_group_object(manager, self.model_one)
         get_for_model.assert_called_once_with(self.model_one)
 
     @mock.patch.object(ContentType.objects, 'get_for_model')
-    def test_get_by_related_object_returns_rules_for_related_object(self, get_for_model):
+    def test_get_by_group_object_returns_rules_for_related_object(self, get_for_model):
         manager = mock.Mock(spec_set=models.RuleManager)
         rules = models.RuleManager.get_by_group_object(manager, self.model_one)
 
@@ -46,6 +51,38 @@ class RuleModelTests(unittest.TestCase):
             rule_class.return_value.run.assert_called_once_with(*args, **kwargs)
         finally:
             site.unregister(rule_class)
+
+class ViolationManagerTests(unittest.TestCase):
+
+    def setUp(self):
+        self.model = mock.Mock()
+
+    @mock.patch.object(ContentType.objects, 'get_for_model')
+    def test_get_content_type_for_model_in_get_by_validation_object(self, get_for_model):
+        manager = mock.Mock(spec_set=models.ViolationManager)
+        models.ViolationManager.get_by_validation_object(manager, self.model)
+        get_for_model.assert_called_once_with(self.model)
+
+    @mock.patch.object(ContentType.objects, 'get_for_model')
+    def test_get_by_validation_object_returns_rules_for_related_object(self, get_for_model):
+        manager = mock.Mock(spec_set=models.ViolationManager)
+        violations = models.ViolationManager.get_by_validation_object(manager, self.model)
+
+        manager.filter.assert_called_once_with(
+            content_type=get_for_model.return_value,
+            validation_object_id=self.model.pk,
+        )
+        self.assertEqual(manager.filter.return_value, violations)
+
+    def test_violations_queries_on_validation_object_and_rule_model(self):
+        rule = models.Rule(pk=1)
+        manager = mock.Mock(spec_set=models.ViolationManager)
+
+        violations = models.ViolationManager.get_rule_violations(manager, rule, self.model)
+        manager.get_by_validation_object.assert_called_once_with(self.model)
+        base_query = manager.get_by_validation_object.return_value
+        base_query.filter.assert_called_once_with(rule=rule)
+        self.assertEqual(base_query.filter.return_value, violations)
 
 class ViolationModelTests(unittest.TestCase):
 
