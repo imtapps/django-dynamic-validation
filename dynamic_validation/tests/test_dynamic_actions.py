@@ -23,6 +23,8 @@ class BaseDynamicActionTests(unittest.TestCase):
 
     @mock.patch.object(BaseDynamicAction, 'get_current_violations')
     def test_run_calls_get_current_violations_with_args_and_kwargs(self, get_current_violations):
+        get_current_violations.return_value = []
+
         args = [mock.Mock()]
         kwargs = dict(mock=mock.Mock())
 
@@ -33,6 +35,7 @@ class BaseDynamicActionTests(unittest.TestCase):
     @mock.patch.object(BaseDynamicAction, 'get_current_violations')
     @mock.patch.object(BaseDynamicAction, 'get_matching_violations')
     def test_run_calls_gets_matching_violations_with_current_violations(self, get_matching, get_current):
+        get_current.return_value = []
         self.action.run()
         get_matching.assert_called_once_with(get_current.return_value)
 
@@ -41,9 +44,15 @@ class BaseDynamicActionTests(unittest.TestCase):
     @mock.patch.object(BaseDynamicAction, 'save_violations')
     def test_run_calls_save_violations_with_matching_and_current_violations(self, *args):
         save, get_matching, get_current = args
+        get_current.return_value = []
         self.action.run()
         save.assert_called_once_with(get_matching.return_value, get_current.return_value)
 
     def test_get_current_violations_raises_not_implemented_error(self):
         with self.assertRaises(NotImplementedError):
             self.action.get_current_violations()
+
+    @mock.patch.object(BaseDynamicAction, 'get_current_violations', mock.Mock())
+    def test_raises_type_error_when_get_current_violations_does_not_return_list(self):
+        with self.assertRaises(TypeError):
+            self.action.run()
