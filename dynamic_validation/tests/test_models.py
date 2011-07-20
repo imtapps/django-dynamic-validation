@@ -33,11 +33,15 @@ class RuleModelTests(unittest.TestCase):
     def test_uses_rule_manager(self):
         self.assertIsInstance(models.Rule.objects, models.RuleManager)
 
-    def test_gets_action_class_by_key(self):
-        self.rule_mock = mock.Mock()
-        site.register(self.rule_mock)
+    def test_run_action_runs_action_for_rule_class(self):
+        rule_class = mock.Mock()
+        site.register(rule_class)
+        args = [mock.Mock()]
+        kwargs = {'my_mock': mock.Mock()}
         try:
-            rule = models.Rule(key=self.rule_mock.key)
-            self.assertEqual(self.rule_mock, rule.action_class)
+            rule = models.Rule(key=rule_class.key)
+            rule.run_action(*args, **kwargs)
+            rule_class.assert_called_once_with(rule)
+            rule_class.return_value.run.assert_called_once_with(*args, **kwargs)
         finally:
-            site.unregister(self.rule_mock)
+            site.unregister(rule_class)

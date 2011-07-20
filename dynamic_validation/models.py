@@ -26,6 +26,6 @@ class Rule(models.Model):
     def __unicode__(self):
         return self.name
 
-    @property
-    def action_class(self):
-        return site.get_rule_class(self.key)
+    def run_action(self, *args, **kwargs):
+        rule_class = site.get_rule_class(self.key)
+        rule_class(self).run(*args, **kwargs)
