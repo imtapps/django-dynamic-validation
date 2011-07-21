@@ -4,6 +4,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils import unittest
 
 from dynamic_validation import models, site
+from dynamic_validation.tests.utils import get_violation
 
 __all__ = (
     'RuleManagerTests', 'RuleModelTests',
@@ -91,47 +92,37 @@ class ViolationModelTests(unittest.TestCase):
             [('validation_object_id', 'content_type', 'rule', 'key')],
             models.Violation._meta.unique_together)
 
-    def get_violation(self, **kwargs):
-        return models.Violation(
-            pk=kwargs.get('pk'),
-            key=kwargs.get('key', "abc"),
-            rule=kwargs.get("rule", models.Rule(pk=100)),
-            violated_fields=kwargs.get("violated_fields", {'field': 'one'}),
-            content_type=kwargs.get("content_type", ContentType(pk=10)),
-            validation_object_id=kwargs.get("validation_object_id", 1),
-            )
-
     def test_violations_are_equal_when_validation_object_rule_key_and_fields_match(self):
-        violation_one = self.get_violation(pk=1)
-        violation_two = self.get_violation()
+        violation_one = get_violation(pk=1)
+        violation_two = get_violation()
         self.assertEqual(violation_two, violation_one)
 
     def test_violations_are_not_equal_when_key_doesnt_match(self):
-        violation_one = self.get_violation(key="123")
-        violation_two = self.get_violation()
+        violation_one = get_violation(key="123")
+        violation_two = get_violation()
         self.assertNotEqual(violation_two, violation_one)
 
     def test_violations_are_not_equal_when_rule_doesnt_match(self):
-        violation_one = self.get_violation(rule=models.Rule(pk=99))
-        violation_two = self.get_violation()
+        violation_one = get_violation(rule=models.Rule(pk=99))
+        violation_two = get_violation()
         self.assertNotEqual(violation_two, violation_one)
 
     def test_violations_are_not_equal_when_content_type_doesnt_match(self):
-        violation_one = self.get_violation(content_type=ContentType(pk=99))
-        violation_two = self.get_violation()
+        violation_one = get_violation(content_type=ContentType(pk=99))
+        violation_two = get_violation()
         self.assertNotEqual(violation_two, violation_one)
 
     def test_violations_are_not_equal_when_validation_object_id_doesnt_match(self):
-        violation_one = self.get_violation(validation_object_id=99)
-        violation_two = self.get_violation()
+        violation_one = get_violation(validation_object_id=99)
+        violation_two = get_violation()
         self.assertNotEqual(violation_two, violation_one)
 
     def test_violations_are_not_equal_when_violated_fields_doesnt_match(self):
-        violation_one = self.get_violation(violated_fields={'a_value': 99})
-        violation_two = self.get_violation()
+        violation_one = get_violation(violated_fields={'a_value': 99})
+        violation_two = get_violation()
         self.assertNotEqual(violation_two, violation_one)
 
     def test_violations_are_not_equal_when_other_object_is_not_violation_model(self):
-        violation = self.get_violation()
+        violation = get_violation()
         self.assertNotEqual(violation, models.Rule())
 

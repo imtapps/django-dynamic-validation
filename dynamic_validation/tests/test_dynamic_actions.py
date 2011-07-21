@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 
 from dynamic_validation import models
 from dynamic_validation.dynamic_actions import BaseDynamicAction
+from dynamic_validation.tests.utils import get_violation
 
 __all__ = (
     'BaseDynamicActionTests',
@@ -113,3 +114,14 @@ class BaseDynamicActionTests(unittest.TestCase):
         violation.save.assert_called_once_with()
         violation2.save.assert_called_once_with()
         self.assertFalse(violation3.save.called)
+
+    @mock.patch('dynamic_validation.models.Violation.save', mock.Mock())
+    def test_save_violation_updates_message_when_violation_already_exists(self):
+        violation = get_violation(message="A new message")
+        existing_violation = get_violation(message="An old message")
+        violation2 = mock.Mock(spec_set=models.Violation())
+
+        self.action.save_violations([existing_violation], [violation, violation2])
+
+        self.assertEqual(violation.message, existing_violation.message)
+        existing_violation.save.assert_called_once_with()

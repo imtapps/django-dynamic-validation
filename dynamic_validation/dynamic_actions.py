@@ -37,14 +37,14 @@ class BaseDynamicAction(object):
     
     def save_violations(self, matching_violations, current_violations):
         for violation in current_violations:
-            if violation not in matching_violations:
+            if violation in matching_violations:
+                position = matching_violations.index(violation)
+                existing_violation = matching_violations[position]
+                existing_violation.message = violation.message
+                existing_violation.save()
+            else:
                 violation.save()
-#            else:
-#                #todo: Nothing material changed about the violation.
-#                # do we want to update the message for good measure
-#                # in case anything it says happened to change?
-#                pass
-            
+
     def create_violation(self, key, message, violated_fields):
         return Violation(
             rule=self.rule_model,
