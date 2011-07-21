@@ -1,5 +1,5 @@
 
-from dynamic_validation.models import Violation
+from dynamic_validation.models import Violation, ViolationStatus
 
 __all__ = ('BadViolationType', 'BaseDynamicAction')
 
@@ -7,6 +7,7 @@ class BadViolationType(TypeError):
     pass
 
 class BaseDynamicAction(object):
+    accepted_status = ViolationStatus.unreviewed
 
     def __init__(self, rule_model, validation_object):
         self.rule_model = rule_model
@@ -57,6 +58,7 @@ class BaseDynamicAction(object):
                 existing_violation.save()
             else:
                 violation.save()
+
     def create_violation(self, key, message, violated_fields):
         return Violation(
             rule=self.rule_model,
@@ -64,4 +66,5 @@ class BaseDynamicAction(object):
             key=key,
             message=message,
             violated_fields=violated_fields,
-            )
+            acceptable=self.accepted_status,
+        )

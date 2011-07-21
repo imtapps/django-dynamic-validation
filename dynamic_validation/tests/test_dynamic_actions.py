@@ -19,6 +19,9 @@ class BaseDynamicActionTests(unittest.TestCase):
         self.validation_object = User.objects.create(username="test_admin")
         self.action = BaseDynamicAction(self.rule_model, self.validation_object)
 
+    def test_accepted_status_is_unreviewed_by_default(self):
+        self.assertEqual(models.ViolationStatus.unreviewed, self.action.accepted_status)
+
     def test_saves_rule_model_on_instance(self):
         self.assertEqual(self.rule_model, self.action.rule_model)
 
@@ -78,11 +81,13 @@ class BaseDynamicActionTests(unittest.TestCase):
         key = "key"
         message = "message"
         violated_fields = {'my_field': 'value'}
+        self.action.accepted_status = models.ViolationStatus.rejected
 
         violation = self.action.create_violation(
             key=key,
             message=message,
-            violated_fields=violated_fields,)
+            violated_fields=violated_fields,
+        )
 
         self.assertIsInstance(violation, models.Violation)
         self.assertEqual(None, violation.pk)
@@ -91,6 +96,7 @@ class BaseDynamicActionTests(unittest.TestCase):
         self.assertEqual(violated_fields, violation.violated_fields)
         self.assertEqual(self.rule_model, violation.rule)
         self.assertEqual(self.validation_object, violation.validation_object)
+        self.assertEqual(models.ViolationStatus.rejected, violation.acceptable)
 
     @mock.patch.object(models.Violation.objects, 'get_violations_for_rule')
     def test_get_matching_violations_gets_existing_violations(self, get_violations):

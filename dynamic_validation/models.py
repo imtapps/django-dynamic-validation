@@ -43,6 +43,10 @@ class ViolationManager(models.Manager):
         base_query = self.get_by_validation_object(validation_object)
         return base_query.filter(rule=rule)
 
+class ViolationStatus(object):
+    unreviewed = None
+    accepted = True
+    rejected = False
 
 class Violation(models.Model):
     content_type = models.ForeignKey('contenttypes.ContentType')
@@ -52,6 +56,7 @@ class Violation(models.Model):
     rule = models.ForeignKey(Rule)
     key = models.CharField(max_length=30, help_text="A unique key to make this violation object unique with the rule.")
     message = models.CharField(max_length=100)
+    acceptable = models.NullBooleanField()
     violated_fields = helper_fields.PickleField()
 
     objects = ViolationManager()
