@@ -28,14 +28,12 @@ TEMPLATE_DIRS = (
 )
 
 MIDDLEWARE_CLASSES = (
-    'autoload.middleware.AutoloadMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
 )
-AUTOLOAD_SITECONF = 'site_conf'
 
 INSTALLED_APPS = (
     'django.contrib.auth',
@@ -44,7 +42,6 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.staticfiles',
 
-    'autoload',
     'djadmin_ext',
     'dynamic_validation',
     'sample',
