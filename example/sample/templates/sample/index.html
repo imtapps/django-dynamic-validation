@@ -1,3 +1,5 @@
+{% load dynamic_validation_tags %}
+
 <!DOCTYPE HTML>
 <html>
     <title>Run Dynamic Validation Rules</title>
@@ -58,6 +60,23 @@
             <h1>Run Dynamic Validation Rules</h1>
             <p>To change the data, please do it in the admin.</p>
         </nav>
-        {% block content %}{% endblock %}
+
+        {% for league in object_list %}
+            <div class="bubble">
+            <h2>{{ league }}</h2>
+            {% for team in league.teams.all %}
+                {% violations_for team as violations %}
+
+                <h3>{{ team.name }}</h3>
+                <ul>
+                {% for violation in violations %}
+                    <li>{{ violation }}</li>
+                {% empty %}
+                    <li>Hooray! No Violations.</li>
+                {% endfor %}
+                </ul>
+            {% endfor %}
+            </div>
+        {% endfor %}
     </body>
 </html>

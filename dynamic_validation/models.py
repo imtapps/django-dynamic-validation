@@ -54,6 +54,9 @@ class Violation(models.Model):
 
     objects = ViolationManager()
 
+    def __unicode__(self):
+        return self.message
+
     class Meta(object):
         unique_together = ('validation_object_id', 'content_type', 'rule', 'key')
 

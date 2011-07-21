@@ -4,7 +4,7 @@ from django import test as unittest
 from django.contrib.auth.models import User
 
 from dynamic_validation import models
-from dynamic_validation.dynamic_actions import BaseDynamicAction
+from dynamic_validation.dynamic_actions import BaseDynamicAction, BadViolationType
 from dynamic_validation.tests.utils import get_violation
 
 __all__ = (
@@ -56,10 +56,23 @@ class BaseDynamicActionTests(unittest.TestCase):
         with self.assertRaises(NotImplementedError):
             self.action.get_current_violations()
 
-    @mock.patch.object(BaseDynamicAction, 'get_current_violations', mock.Mock())
-    def test_raises_type_error_when_get_current_violations_does_not_return_list(self):
-        with self.assertRaises(TypeError):
+    @mock.patch.object(BaseDynamicAction, 'get_current_violations')
+    def test_raises_type_error_when_a_current_violations_not_violation_instance(self, get_violations):
+        get_violations.return_value = [models.Violation(), mock.Mock()]
+
+        with self.assertRaises(BadViolationType):
             self.action.run()
+
+    @mock.patch.object(BaseDynamicAction, 'get_current_violations', mock.Mock(return_value=None))
+    def test_clean_violations_returns_empty_list_when_current_violations_is_none(self):
+        self.assertEqual([], self.action.get_cleaned_violations())
+
+    def test_wraps_single_violation_in_list_in_get_cleaned_violations(self):
+        violation = models.Violation(pk=1)
+
+        with mock.patch.object(BaseDynamicAction, 'get_current_violations', mock.Mock(return_value=violation)):
+            violations = self.action.get_cleaned_violations()
+        self.assertEqual([violation], violations)
 
     def test_create_violation_returns_unsaved_rule_violation(self):
         key = "key"

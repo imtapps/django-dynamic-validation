@@ -1,11 +1,12 @@
-from django.views.generic.base import TemplateView
+from django.views.generic import ListView
 
 from dynamic_validation import models as validation_models
 
 from sample import models as sample_models
 
-class Index(TemplateView):
+class Index(ListView):
     template_name = 'sample/index.html'
+    model = sample_models.League
 
     def get(self, request, *args, **kwargs):
         for league in sample_models.League.objects.all():

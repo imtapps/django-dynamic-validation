@@ -29,10 +29,10 @@ class GenderRatio(BaseDynamicAction):
         violation_fields = dict(males=male_players, females=female_players)
         if male_percent > acceptable_percent:
             message = "Violated... %s men over coed percent allowed (%s)" % (male_percent, acceptable_percent)
-            return [self.create_violation(team.pk, message, violation_fields)]
+            return self.create_violation(team.pk, message, violation_fields)
         elif female_percent > acceptable_percent:
             message = "Violated... %s female over coed percent allowed (%s)" % (female_percent, acceptable_percent)
-            return [self.create_violation(team.pk, message, violation_fields)]
+            return self.create_violation(team.pk, message, violation_fields)
 
 @site.register
 class LimitNumberOfPlayersUnderAge(BaseDynamicAction):
@@ -54,8 +54,7 @@ class LimitNumberOfPlayersUnderAge(BaseDynamicAction):
 
         if players_under_age > player_count_limit:
             message = "%s can only have %s players under %s. (it has %s)" % (team, player_count_limit, min_age, players_under_age)
-            return [self.create_violation(team.pk, message, violation_fields)]
-        return []
+            return self.create_violation(team.pk, message, violation_fields)
 
 @site.register
 class RangeOfAveragePlayerAge(BaseDynamicAction):
@@ -77,6 +76,4 @@ class RangeOfAveragePlayerAge(BaseDynamicAction):
         violation_fields = dict(average_player_age=average_player_age)
         if not min_age <= average_player_age <= max_age:
             message = "Average player age %s needs to between %s and %s." % (average_player_age, min_age, max_age)
-            return [self.create_violation(team.pk, message, violation_fields)]
-
-        return []
+            return self.create_violation(team.pk, message, violation_fields)
