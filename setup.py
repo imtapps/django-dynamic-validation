@@ -21,7 +21,7 @@ setup(
     description="Define user generated validation requirements for django models.",
     long_description=open('README.txt', 'r').read(),
     url="https://github.com/imtapps/django-dynamic-validation",
-    packages=find_packages("dynamic_validation",),
+    packages=find_packages(exclude=['example']),
     install_requires=REQUIREMENTS,
     tests_require=TEST_REQUIREMENTS,
     test_suite='runtests.runtests',
