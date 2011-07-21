@@ -5,6 +5,8 @@ from django.template.base import TemplateSyntaxError
 from dynamic_validation.models import Violation
 register = Library()
 
+__all__ = ('violations_for', )
+
 @register.tag
 def violations_for(parser, token):
     """

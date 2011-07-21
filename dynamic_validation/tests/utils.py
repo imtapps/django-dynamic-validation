@@ -3,6 +3,8 @@ from django.contrib.contenttypes.models import ContentType
 
 from dynamic_validation import models
 
+__all__ = ('get_violation', )
+
 def get_violation(**kwargs):
     return models.Violation(
         pk=kwargs.get('pk'),

@@ -8,6 +8,8 @@ from djadmin_ext.admin_forms import BaseAjaxModelForm
 
 from dynamic_validation import admin_forms, models, site
 
+__all__ = ('AdminRuleFormTests', )
+
 class RuleOne(object):
     fields = {
         'field_one': forms.IntegerField(),

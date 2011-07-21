@@ -3,6 +3,8 @@ from django.utils import unittest
 
 from django.template import Context, Template, TemplateSyntaxError
 
+__all__ = ('DynamicViolationTagTests', )
+
 class DynamicViolationTagTests(unittest.TestCase):
 
     @mock.patch('dynamic_validation.models.Violation.objects.get_by_validation_object')

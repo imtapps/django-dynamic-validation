@@ -6,6 +6,8 @@ from django_fields import fields as helper_fields
 
 from dynamic_validation import site
 
+__all__ = ('Violation', 'Rule', )
+
 class RuleManager(models.Manager):
 
     def get_by_group_object(self, obj):
