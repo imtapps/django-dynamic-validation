@@ -14,6 +14,9 @@ class RuleManager(models.Manager):
         content_type = ContentType.objects.get_for_model(obj)
         return self.filter(content_type=content_type, group_object_id=obj.pk)
 
+    def get_by_key(self, group_object, key):
+        return self.get_by_group_object(group_object).filter(key=key)
+
 class Rule(models.Model):
     content_type = models.ForeignKey('contenttypes.ContentType')
     group_object_id = models.PositiveIntegerField(db_index=True)
