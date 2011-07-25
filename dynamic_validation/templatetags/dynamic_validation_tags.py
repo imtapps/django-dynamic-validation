@@ -1,5 +1,5 @@
 
-from django.template import Library, Node
+from django.template import Library, Node, Variable
 from django.template.base import TemplateSyntaxError
 
 from dynamic_validation.models import Violation
@@ -20,10 +20,11 @@ def violations_for(parser, token):
 
 class ViolationsForNode(Node):
     def __init__(self, obj, var_name):
-        self.obj = obj
+        self.obj = Variable(obj)
         self.var_name = var_name
 
     def render(self, context):
-        violations = Violation.objects.get_by_validation_object(context[self.obj])
+        obj = self.obj.resolve(context)
+        violations = Violation.objects.get_by_validation_object(obj)
         context[self.var_name] = violations
         return ''
