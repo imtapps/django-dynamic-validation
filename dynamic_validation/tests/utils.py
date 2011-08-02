@@ -14,4 +14,5 @@ def get_violation(**kwargs):
         content_type=kwargs.get("content_type", ContentType(pk=10)),
         validation_object_id=kwargs.get("validation_object_id", 1),
         message=kwargs.get('message'),
+        acceptable=kwargs.get('acceptable'),
     )

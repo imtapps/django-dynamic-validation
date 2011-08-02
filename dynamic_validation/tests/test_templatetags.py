@@ -26,6 +26,19 @@ class DynamicViolationTagTests(unittest.TestCase):
         self.assertTrue("two" in result)
         self.assertTrue("three" in result)
 
+    @mock.patch('dynamic_validation.models.ViolationsWrapper')
+    @mock.patch('dynamic_validation.models.Violation.objects.get_by_validation_object')
+    def test_violation_tag_wraps_query_results_in_violations_wrapper(self, get_by_object, wrapper_class):
+        validation_object = mock.sentinel.validation_object
+        template = Template("""
+            {% load dynamic_validation_tags %}
+            {% violations_for validation_object as violations %}
+        """)
+        context = dict(validation_object=validation_object)
+        template.render(Context(context))
+        wrapper_class.assert_called_once_with(get_by_object.return_value)
+        self.assertEqual(context['violations'], wrapper_class.return_value)
+
     @mock.patch('dynamic_validation.models.Violation.objects.get_by_validation_object')
     def test_violations_for_tag_can_resolve_callable_variable_for_violation_object(self, get_by_validation_object):
         template = Template("""

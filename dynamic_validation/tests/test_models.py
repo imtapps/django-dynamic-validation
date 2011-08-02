@@ -9,6 +9,7 @@ from dynamic_validation.tests.utils import get_violation
 __all__ = (
     'RuleManagerTests', 'RuleModelTests',
     'ViolationManagerTests', 'ViolationModelTests',
+    'ViolationWrapperTests',
 
 )
 
@@ -138,3 +139,91 @@ class ViolationModelTests(unittest.TestCase):
         violation = get_violation()
         self.assertNotEqual(violation, models.Rule())
 
+class ViolationWrapperTests(unittest.TestCase):
+
+    def test_iterating_over_wrapper_iterates_over_queryset(self):
+        violation_one = get_violation(key="123")
+        violation_two = get_violation(key="ABC")
+        violation_queryset = [violation_one, violation_two]
+        violations = models.ViolationsWrapper(violation_queryset)
+        for qs, v in zip(violation_queryset, violations):
+            self.assertEqual(qs, v)
+
+    def test_len_on_wrapper_returns_len_of_queryset(self):
+        violation_queryset = ["one", "two"]
+        violations = models.ViolationsWrapper(violation_queryset)
+        self.assertEqual(2, len(violations))
+
+    def test_count_property_returns_len_of_queryset(self):
+        violation_queryset = ["one", "two"]
+        violations = models.ViolationsWrapper(violation_queryset)
+        self.assertEqual(2, violations.count)
+
+    def test_unreviewed_property_returns_unreviewed_violations(self):
+        violation_one = get_violation(key="123", acceptable=models.ViolationStatus.unreviewed)
+        violation_two = get_violation(key="ABC", acceptable=models.ViolationStatus.unreviewed)
+        violation_three = get_violation(key="XYZ", acceptable=models.ViolationStatus.rejected)
+        violation_queryset = [violation_one, violation_two, violation_three]
+        violations = models.ViolationsWrapper(violation_queryset)
+        self.assertEqual([violation_one, violation_two], violations.unreviewed)
+
+    def test_accepted_property_returns_accepted_violations(self):
+        violation_one = get_violation(key="123", acceptable=models.ViolationStatus.accepted)
+        violation_two = get_violation(key="ABC", acceptable=models.ViolationStatus.accepted)
+        violation_three = get_violation(key="XYZ", acceptable=models.ViolationStatus.rejected)
+        violation_queryset = [violation_one, violation_two, violation_three]
+        violations = models.ViolationsWrapper(violation_queryset)
+        self.assertEqual([violation_one, violation_two], violations.accepted)
+
+    def test_rejected_property_returns_rejected_violations(self):
+        violation_one = get_violation(key="123", acceptable=models.ViolationStatus.rejected)
+        violation_two = get_violation(key="ABC", acceptable=models.ViolationStatus.rejected)
+        violation_three = get_violation(key="XYZ", acceptable=models.ViolationStatus.accepted)
+        violation_queryset = [violation_one, violation_two, violation_three]
+        violations = models.ViolationsWrapper(violation_queryset)
+        self.assertEqual([violation_one, violation_two], violations.rejected)
+
+    def test_unreviewed_count_returns_number_of_unreviewed_violations(self):
+        violation_one = get_violation(key="123", acceptable=models.ViolationStatus.unreviewed)
+        violation_two = get_violation(key="ABC", acceptable=models.ViolationStatus.unreviewed)
+        violation_three = get_violation(key="XYZ", acceptable=models.ViolationStatus.rejected)
+        violation_queryset = [violation_one, violation_two, violation_three]
+        violations = models.ViolationsWrapper(violation_queryset)
+        self.assertEqual(2, violations.unreviewed_count)
+
+    def test_accepted_count_returns_number_of_accepted_violations(self):
+        violation_one = get_violation(key="123", acceptable=models.ViolationStatus.accepted)
+        violation_two = get_violation(key="ABC", acceptable=models.ViolationStatus.accepted)
+        violation_three = get_violation(key="XYZ", acceptable=models.ViolationStatus.rejected)
+        violation_queryset = [violation_one, violation_two, violation_three]
+        violations = models.ViolationsWrapper(violation_queryset)
+        self.assertEqual(2, violations.accepted_count)
+
+    def test_accepted_count_returns_number_of_accepted_violations(self):
+        violation_one = get_violation(key="123", acceptable=models.ViolationStatus.rejected)
+        violation_two = get_violation(key="ABC", acceptable=models.ViolationStatus.rejected)
+        violation_three = get_violation(key="XYZ", acceptable=models.ViolationStatus.accepted)
+        violation_queryset = [violation_one, violation_two, violation_three]
+        violations = models.ViolationsWrapper(violation_queryset)
+        self.assertEqual(2, violations.rejected_count)
+
+    def test_max_level_is_error_when_has_rejected_violations(self):
+        violation_one = get_violation(key="123", acceptable=models.ViolationStatus.rejected)
+        violation_two = get_violation(key="ABC", acceptable=models.ViolationStatus.unreviewed)
+        violation_queryset = [violation_one, violation_two]
+        violations = models.ViolationsWrapper(violation_queryset)
+        self.assertEqual("error", violations.max_level)
+
+    def test_max_level_is_warn_when_no_rejected_but_has_unreviewed(self):
+        violation_one = get_violation(key="123", acceptable=models.ViolationStatus.unreviewed)
+        violation_two = get_violation(key="ABC", acceptable=models.ViolationStatus.accepted)
+        violation_queryset = [violation_one, violation_two]
+        violations = models.ViolationsWrapper(violation_queryset)
+        self.assertEqual("warn", violations.max_level)
+
+    def test_max_level_is_ok_when_only_accepted(self):
+        violation_one = get_violation(key="123", acceptable=models.ViolationStatus.accepted)
+        violation_two = get_violation(key="ABC", acceptable=models.ViolationStatus.accepted)
+        violation_queryset = [violation_one, violation_two]
+        violations = models.ViolationsWrapper(violation_queryset)
+        self.assertEqual("ok", violations.max_level)

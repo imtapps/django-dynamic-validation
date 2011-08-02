@@ -2,7 +2,7 @@
 from django.template import Library, Node, Variable
 from django.template.base import TemplateSyntaxError
 
-from dynamic_validation.models import Violation
+from dynamic_validation import models
 register = Library()
 
 __all__ = ('violations_for', )
@@ -25,6 +25,6 @@ class ViolationsForNode(Node):
 
     def render(self, context):
         obj = self.obj.resolve(context)
-        violations = Violation.objects.get_by_validation_object(obj)
-        context[self.var_name] = violations
+        violations = models.Violation.objects.get_by_validation_object(obj)
+        context[self.var_name] = models.ViolationsWrapper(violations)
         return ''

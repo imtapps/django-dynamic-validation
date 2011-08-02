@@ -36,6 +36,62 @@ class Rule(models.Model):
         rule_class(self, validation_object).run(*args, **kwargs)
 
 
+class ViolationsWrapper(object):
+    """
+    Wraps a violation queryset and provides an easy way to get
+    violations by status, the count of each, and the max level.
+    """
+
+    def __init__(self, violations):
+        self.violations = violations
+
+    def __iter__(self):
+        return iter(self.violations)
+
+    def __len__(self):
+        return len(self.violations)
+
+    def _get_by_status(self, status):
+        return [v for v in self.violations if v.acceptable == status]
+
+    @property
+    def count(self):
+        return len(self)
+
+    @property
+    def unreviewed(self):
+        return self._get_by_status(ViolationStatus.unreviewed)
+
+    @property
+    def accepted(self):
+        return self._get_by_status(ViolationStatus.accepted)
+
+    @property
+    def rejected(self):
+        return self._get_by_status(ViolationStatus.rejected)
+
+    @property
+    def unreviewed_count(self):
+        return len(self.unreviewed)
+
+    @property
+    def accepted_count(self):
+        return len(self.accepted)
+
+    @property
+    def rejected_count(self):
+        return len(self.rejected)
+
+    @property
+    def max_level(self):
+        if self.rejected_count:
+            return "error"
+        elif self.unreviewed_count:
+            return "warn"
+        else:
+            return "ok"
+
+    
 class ViolationManager(models.Manager):
 
     def get_by_validation_object(self, obj):
