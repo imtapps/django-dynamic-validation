@@ -1,6 +1,6 @@
 
 from django.template import Library, Node, Variable
-from django.template.base import TemplateSyntaxError
+from django.template.base import TemplateSyntaxError, VariableDoesNotExist
 
 from dynamic_validation import models
 register = Library()
@@ -24,7 +24,9 @@ class ViolationsForNode(Node):
         self.var_name = var_name
 
     def render(self, context):
-        obj = self.obj.resolve(context)
-        violations = models.Violation.objects.get_by_validation_object(obj)
-        context[self.var_name] = models.ViolationsWrapper(violations)
+        try:
+            obj = self.obj.resolve(context)
+            violations = models.Violation.objects.get_by_validation_object(obj)
+            context[self.var_name] = models.ViolationsWrapper(violations)
+        except VariableDoesNotExist: pass
         return ''

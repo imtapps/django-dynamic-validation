@@ -75,3 +75,12 @@ class DynamicViolationTagTests(unittest.TestCase):
 
                 {% violations_for as validation_object %}
             """)
+
+    @mock.patch('dynamic_validation.models.Violation.objects.get_by_validation_object', mock.MagicMock())
+    def test_returns_empty_string_when_template_variable_does_not_exist(self):
+        template = Template("""
+            {% load dynamic_validation_tags %}
+            {% violations_for get_validation_obj as violations %}
+        """)
+        result = template.render(Context({}))
+        self.assertEqual('', result.strip())
