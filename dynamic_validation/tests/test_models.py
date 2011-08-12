@@ -98,6 +98,16 @@ class ViolationManagerTests(unittest.TestCase):
         base_query.filter.assert_called_once_with(rule=rule)
         self.assertEqual(base_query.filter.return_value, violations)
 
+    def test_unacceptable_violations_for_object_filters(self):
+        manager = mock.Mock(spec_set=models.ViolationManager)
+        violations = models.ViolationManager.get_unacceptable_violations_for_object(manager, self.model)
+
+        manager.get_by_validation_object.assert_called_once_with(self.model)
+        exclude = manager.get_by_validation_object.return_value.exclude
+        exclude.assert_called_once_with(acceptable=models.ViolationStatus.accepted)
+        self.assertEqual(exclude.return_value, violations)
+
+
 class ViolationModelTests(unittest.TestCase):
 
     def test_validation_object_rule_and_key_are_unique(self):
