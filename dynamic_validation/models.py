@@ -73,6 +73,9 @@ class ViolationManager(models.Manager):
         base_query = self.get_by_validation_object(validation_object)
         return base_query.filter(rule=rule)
 
+    def get_unacceptable_violations_for_object(self, obj):
+        return self.get_by_validation_object(obj).exclude(acceptable=ViolationStatus.accepted)
+
 class ViolationStatus(object):
     unreviewed = None
     accepted = True
