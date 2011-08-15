@@ -2,7 +2,7 @@
 from django import forms
 from django.db.models import Avg
 
-from dynamic_validation import site
+from dynamic_rules import site
 from dynamic_validation.dynamic_actions import BaseDynamicAction
 
 

@@ -1,10 +1,3 @@
 
-from sites import site
+VERSION = "0.2.0"
 
-__all__ = ('site',)
-
-VERSION = "0.1.5"
-
-def autodiscover():
-    from autoload import autodiscover as discover
-    discover("dynamic_actions")

@@ -43,6 +43,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
 
     'djadmin_ext',
+    'dynamic_rules',
     'dynamic_validation',
     'sample',
 )

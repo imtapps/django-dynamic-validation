@@ -5,8 +5,8 @@ from dynamic_validation import VERSION
 REQUIREMENTS = [
     'django',
     'django-fields',
-    'django-admin-ext',
     'django-autoload',
+    'django-dynamic-rules',
 ]
 
 TEST_REQUIREMENTS = [

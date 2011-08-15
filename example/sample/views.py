@@ -1,6 +1,6 @@
 from django.views.generic import ListView
 
-from dynamic_validation import models as validation_models
+from dynamic_rules import models as rule_models
 
 from sample import models as sample_models
 
@@ -10,7 +10,7 @@ class Index(ListView):
 
     def get(self, request, *args, **kwargs):
         for league in sample_models.League.objects.all():
-            league_rules = validation_models.Rule.objects.get_by_group_object(league)
+            league_rules = rule_models.Rule.objects.get_by_group_object(league)
             for team in league.teams.all():
                 for rule in league_rules:
                     rule.run_action(team)

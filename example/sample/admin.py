@@ -3,9 +3,9 @@ from django import forms
 from django.contrib import admin
 from django.contrib.contenttypes import models as contenttype_models
 
-from dynamic_validation import admin_forms
-from dynamic_validation import models as validation_models
-from dynamic_validation import admin as validation_admin
+from dynamic_rules import admin_forms
+from dynamic_rules import models as rule_models
+from dynamic_rules import admin as rule_admin
 
 from sample import models
 
@@ -16,7 +16,6 @@ class TeamAdmin(admin.ModelAdmin):
 class PlayerAdmin(admin.ModelAdmin):
     list_display = ('name', 'age', 'gender', 'team', )
     list_filter = ('team','team__league')
-
 
 
 class RuleForm(admin_forms.RuleForm):
@@ -33,10 +32,10 @@ class RuleForm(admin_forms.RuleForm):
         return super(RuleForm, self).save(commit)
 
     class Meta(object):
-        model = validation_models.Rule
+        model = rule_models.Rule
         fields = ('name', 'key', 'group_object_id')
 
-class RuleAdmin(validation_admin.RuleAdmin):
+class RuleAdmin(rule_admin.RuleAdmin):
     form = RuleForm
     list_display = ('name', 'group_obj')
 
@@ -44,8 +43,8 @@ class RuleAdmin(validation_admin.RuleAdmin):
         return obj.group_object
     group_obj.short_description = "League"
 
-admin.site.unregister(validation_models.Rule)
-admin.site.register(validation_models.Rule, RuleAdmin)
+admin.site.unregister(rule_models.Rule)
+admin.site.register(rule_models.Rule, RuleAdmin)
 
 admin.site.register(models.League)
 admin.site.register(models.Team, TeamAdmin)

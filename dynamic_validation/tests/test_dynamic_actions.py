@@ -3,6 +3,7 @@ import mock
 from django import test as unittest
 from django.contrib.auth.models import User
 
+from dynamic_rules import models as rule_models
 from dynamic_validation import models
 from dynamic_validation.dynamic_actions import BaseDynamicAction, BadViolationType
 from dynamic_validation.tests.utils import get_violation
@@ -15,7 +16,7 @@ __all__ = (
 class BaseDynamicActionTests(unittest.TestCase):
 
     def setUp(self):
-        self.rule_model = models.Rule(pk=1)
+        self.rule_model = rule_models.Rule(pk=1)
         self.validation_object = User.objects.create(username="test_admin")
         self.action = BaseDynamicAction(self.rule_model, self.validation_object)
 
