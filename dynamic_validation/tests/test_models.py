@@ -32,8 +32,8 @@ class ViolationManagerTests(unittest.TestCase):
         violations = models.ViolationManager.get_by_validation_object(manager, self.model)
 
         manager.filter.assert_called_once_with(
-            content_type=get_for_model.return_value,
-            validation_object_id=self.model.pk,
+            trigger_content_type=get_for_model.return_value,
+            trigger_model_id=self.model.pk,
         )
         self.assertEqual(manager.filter.return_value, violations)
 
@@ -61,7 +61,7 @@ class ViolationModelTests(unittest.TestCase):
 
     def test_validation_object_rule_and_key_are_unique(self):
         self.assertItemsEqual(
-            [('validation_object_id', 'content_type', 'rule', 'key')],
+            [('trigger_model_id', 'trigger_content_type', 'rule', 'key')],
             models.Violation._meta.unique_together)
 
     def test_violations_are_equal_when_validation_object_rule_key_and_fields_match(self):
@@ -80,12 +80,12 @@ class ViolationModelTests(unittest.TestCase):
         self.assertNotEqual(violation_two, violation_one)
 
     def test_violations_are_not_equal_when_content_type_doesnt_match(self):
-        violation_one = get_violation(content_type=ContentType(pk=99))
+        violation_one = get_violation(trigger_content_type=ContentType(pk=99))
         violation_two = get_violation()
         self.assertNotEqual(violation_two, violation_one)
 
     def test_violations_are_not_equal_when_validation_object_id_doesnt_match(self):
-        violation_one = get_violation(validation_object_id=99)
+        violation_one = get_violation(trigger_model_id=99)
         violation_two = get_violation()
         self.assertNotEqual(violation_two, violation_one)
 

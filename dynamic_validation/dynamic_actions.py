@@ -1,17 +1,14 @@
 
+from dynamic_rules.dynamic_actions import BaseDynamicAction
 from dynamic_validation.models import Violation, ViolationStatus
 
-__all__ = ('BadViolationType', 'BaseDynamicAction')
+__all__ = ('BadViolationType', 'BaseDynamicValidation')
 
 class BadViolationType(TypeError):
     pass
 
-class BaseDynamicAction(object):
+class BaseDynamicValidation(BaseDynamicAction):
     accepted_status = ViolationStatus.unreviewed
-
-    def __init__(self, rule_model, validation_object):
-        self.rule_model = rule_model
-        self.validation_object = validation_object
 
     def run(self, *args, **kwargs):
         current_violations = self.get_cleaned_violations(*args, **kwargs)
@@ -33,7 +30,7 @@ class BaseDynamicAction(object):
         raise NotImplementedError
 
     def get_existing_violations(self):
-        return Violation.objects.get_violations_for_rule(self.rule_model, self.validation_object)
+        return Violation.objects.get_violations_for_rule(self.rule_model, self.trigger_model)
 
     def get_matching_violations(self, current_violations):
         """
@@ -62,7 +59,7 @@ class BaseDynamicAction(object):
     def create_violation(self, key, message, violated_fields):
         return Violation(
             rule=self.rule_model,
-            validation_object=self.validation_object,
+            trigger_model=self.trigger_model,
             key=key,
             message=message,
             violated_fields=violated_fields,

@@ -47,3 +47,10 @@ INSTALLED_APPS = (
     'dynamic_validation',
     'sample',
 )
+
+try:
+    import south
+    INSTALLED_APPS = ('south',) + INSTALLED_APPS
+    SOUTH_TESTS_MIGRATE = False
+except ImportError:
+    pass

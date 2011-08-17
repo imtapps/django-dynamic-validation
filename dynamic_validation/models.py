@@ -65,16 +65,16 @@ class ViolationsWrapper(object):
     
 class ViolationManager(models.Manager):
 
-    def get_by_validation_object(self, obj):
-        content_type = ContentType.objects.get_for_model(obj)
-        return self.filter(content_type=content_type, validation_object_id=obj.pk)
+    def get_by_validation_object(self, trigger_model):
+        trigger_content_type = ContentType.objects.get_for_model(trigger_model)
+        return self.filter(trigger_content_type=trigger_content_type, trigger_model_id=trigger_model.pk)
 
-    def get_violations_for_rule(self, rule, validation_object):
-        base_query = self.get_by_validation_object(validation_object)
+    def get_violations_for_rule(self, rule, trigger_model):
+        base_query = self.get_by_validation_object(trigger_model)
         return base_query.filter(rule=rule)
 
-    def get_unacceptable_violations_for_object(self, obj):
-        return self.get_by_validation_object(obj).exclude(acceptable=ViolationStatus.accepted)
+    def get_unacceptable_violations_for_object(self, trigger_model):
+        return self.get_by_validation_object(trigger_model).exclude(acceptable=ViolationStatus.accepted)
 
 class ViolationStatus(object):
     unreviewed = None
@@ -82,10 +82,10 @@ class ViolationStatus(object):
     rejected = False
 
 class Violation(models.Model):
-    content_type = models.ForeignKey('contenttypes.ContentType')
-    validation_object_id = models.PositiveIntegerField(db_index=True)
-    validation_object = generic.GenericForeignKey(fk_field='validation_object_id')
-
+    trigger_content_type = models.ForeignKey('contenttypes.ContentType', related_name='violations')
+    trigger_model_id = models.PositiveIntegerField(db_index=True)
+    trigger_model = generic.GenericForeignKey(fk_field='trigger_model_id', ct_field='trigger_content_type')
+    
     rule = models.ForeignKey('dynamic_rules.Rule')
     key = models.CharField(max_length=30, help_text="A unique key to make this violation object unique with the rule.")
     message = models.CharField(max_length=100)
@@ -98,15 +98,15 @@ class Violation(models.Model):
         return self.message
 
     class Meta(object):
-        unique_together = ('validation_object_id', 'content_type', 'rule', 'key')
+        unique_together = ('trigger_model_id', 'trigger_content_type', 'rule', 'key')
 
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
             return False
         
         return all([
-            self.validation_object_id == other.validation_object_id,
-            self.content_type == other.content_type,
+            self.trigger_model_id == other.trigger_model_id,
+            self.trigger_content_type == other.trigger_content_type,
             self.rule == other.rule,
             self.key == other.key,
             self.violated_fields == other.violated_fields,
