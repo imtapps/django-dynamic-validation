@@ -30,7 +30,7 @@ class BaseDynamicValidation(BaseDynamicAction):
         raise NotImplementedError
 
     def get_existing_violations(self):
-        return Violation.objects.get_violations_for_rule(self.rule_model, self.trigger_model)
+        return Violation.objects.get_by_rule(self.rule_model, self.trigger_model)
 
     def get_matching_violations(self, current_violations):
         """

@@ -18,22 +18,22 @@ __all__ = (
 class ViolationManagerTests(unittest.TestCase):
 
     def setUp(self):
-        self.model = mock.Mock()
+        self.trigger_model = mock.Mock()
 
     @mock.patch.object(ContentType.objects, 'get_for_model')
-    def test_get_content_type_for_model_in_get_by_validation_object(self, get_for_model):
+    def test_get_content_type_for_model_in_get_by_trigger_model(self, get_for_model):
         manager = mock.Mock(spec_set=models.ViolationManager)
-        models.ViolationManager.get_by_validation_object(manager, self.model)
-        get_for_model.assert_called_once_with(self.model)
+        models.ViolationManager.get_by_trigger_model(manager, self.trigger_model)
+        get_for_model.assert_called_once_with(self.trigger_model)
 
     @mock.patch.object(ContentType.objects, 'get_for_model')
-    def test_get_by_validation_object_returns_rules_for_related_object(self, get_for_model):
+    def test_get_by_trigger_model_returns_rules_for_related_object(self, get_for_model):
         manager = mock.Mock(spec_set=models.ViolationManager)
-        violations = models.ViolationManager.get_by_validation_object(manager, self.model)
+        violations = models.ViolationManager.get_by_trigger_model(manager, self.trigger_model)
 
         manager.filter.assert_called_once_with(
             trigger_content_type=get_for_model.return_value,
-            trigger_model_id=self.model.pk,
+            trigger_model_id=self.trigger_model.pk,
         )
         self.assertEqual(manager.filter.return_value, violations)
 
@@ -41,18 +41,18 @@ class ViolationManagerTests(unittest.TestCase):
         rule = rule_models.Rule(pk=1)
         manager = mock.Mock(spec_set=models.ViolationManager)
 
-        violations = models.ViolationManager.get_violations_for_rule(manager, rule, self.model)
-        manager.get_by_validation_object.assert_called_once_with(self.model)
-        base_query = manager.get_by_validation_object.return_value
+        violations = models.ViolationManager.get_by_rule(manager, rule, self.trigger_model)
+        manager.get_by_trigger_model.assert_called_once_with(self.trigger_model)
+        base_query = manager.get_by_trigger_model.return_value
         base_query.filter.assert_called_once_with(rule=rule)
         self.assertEqual(base_query.filter.return_value, violations)
 
     def test_unacceptable_violations_for_object_filters(self):
         manager = mock.Mock(spec_set=models.ViolationManager)
-        violations = models.ViolationManager.get_unacceptable_violations_for_object(manager, self.model)
+        violations = models.ViolationManager.get_unacceptable_violations_for_object(manager, self.trigger_model)
 
-        manager.get_by_validation_object.assert_called_once_with(self.model)
-        exclude = manager.get_by_validation_object.return_value.exclude
+        manager.get_by_trigger_model.assert_called_once_with(self.trigger_model)
+        exclude = manager.get_by_trigger_model.return_value.exclude
         exclude.assert_called_once_with(acceptable=models.ViolationStatus.accepted)
         self.assertEqual(exclude.return_value, violations)
 

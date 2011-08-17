@@ -4,6 +4,8 @@ from django.contrib.contenttypes.models import ContentType
 
 from django_fields import fields as helper_fields
 
+from dynamic_rules.ext import RuleExtensionManager
+
 __all__ = ('Violation', )
 
 
@@ -63,18 +65,10 @@ class ViolationsWrapper(object):
             return "ok"
 
     
-class ViolationManager(models.Manager):
-
-    def get_by_validation_object(self, trigger_model):
-        trigger_content_type = ContentType.objects.get_for_model(trigger_model)
-        return self.filter(trigger_content_type=trigger_content_type, trigger_model_id=trigger_model.pk)
-
-    def get_violations_for_rule(self, rule, trigger_model):
-        base_query = self.get_by_validation_object(trigger_model)
-        return base_query.filter(rule=rule)
+class ViolationManager(RuleExtensionManager):
 
     def get_unacceptable_violations_for_object(self, trigger_model):
-        return self.get_by_validation_object(trigger_model).exclude(acceptable=ViolationStatus.accepted)
+        return self.get_by_trigger_model(trigger_model).exclude(acceptable=ViolationStatus.accepted)
 
 class ViolationStatus(object):
     unreviewed = None

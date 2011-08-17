@@ -7,8 +7,8 @@ __all__ = ('DynamicViolationTagTests', )
 
 class DynamicViolationTagTests(unittest.TestCase):
 
-    @mock.patch('dynamic_validation.models.Violation.objects.get_by_validation_object')
-    def test_violations_for_adds_violation_to_context(self, get_by_validation_object):
+    @mock.patch('dynamic_validation.models.Violation.objects.get_by_trigger_model')
+    def test_violations_for_adds_violation_to_context(self, get_by_trigger_model):
         template = Template("""
             {% load dynamic_validation_tags %}
 
@@ -18,16 +18,16 @@ class DynamicViolationTagTests(unittest.TestCase):
             {% endfor %}
         """)
         validation_object = mock.sentinel.validation_object
-        get_by_validation_object.return_value = ['one', 'two', 'three']
+        get_by_trigger_model.return_value = ['one', 'two', 'three']
 
         result = template.render(Context(dict(validation_object=validation_object)))
-        get_by_validation_object.assert_called_once_with(validation_object)
+        get_by_trigger_model.assert_called_once_with(validation_object)
         self.assertTrue("one" in result)
         self.assertTrue("two" in result)
         self.assertTrue("three" in result)
 
     @mock.patch('dynamic_validation.models.ViolationsWrapper')
-    @mock.patch('dynamic_validation.models.Violation.objects.get_by_validation_object')
+    @mock.patch('dynamic_validation.models.Violation.objects.get_by_trigger_model')
     def test_violation_tag_wraps_query_results_in_violations_wrapper(self, get_by_object, wrapper_class):
         validation_object = mock.sentinel.validation_object
         template = Template("""
@@ -39,8 +39,8 @@ class DynamicViolationTagTests(unittest.TestCase):
         wrapper_class.assert_called_once_with(get_by_object.return_value)
         self.assertEqual(context['violations'], wrapper_class.return_value)
 
-    @mock.patch('dynamic_validation.models.Violation.objects.get_by_validation_object')
-    def test_violations_for_tag_can_resolve_callable_variable_for_violation_object(self, get_by_validation_object):
+    @mock.patch('dynamic_validation.models.Violation.objects.get_by_trigger_model')
+    def test_violations_for_tag_can_resolve_callable_variable_for_violation_object(self, get_by_trigger_model):
         template = Template("""
             {% load dynamic_validation_tags %}
 
@@ -52,10 +52,10 @@ class DynamicViolationTagTests(unittest.TestCase):
         validation_object = mock.sentinel.validation_object
         def get_validation_object():
             return validation_object
-        get_by_validation_object.return_value = ['one', 'two', 'three']
+        get_by_trigger_model.return_value = ['one', 'two', 'three']
 
         result = template.render(Context(dict(get_validation_obj=get_validation_object)))
-        get_by_validation_object.assert_called_once_with(validation_object)
+        get_by_trigger_model.assert_called_once_with(validation_object)
         self.assertTrue("one" in result)
         self.assertTrue("two" in result)
         self.assertTrue("three" in result)
@@ -76,7 +76,7 @@ class DynamicViolationTagTests(unittest.TestCase):
                 {% violations_for as validation_object %}
             """)
 
-    @mock.patch('dynamic_validation.models.Violation.objects.get_by_validation_object', mock.MagicMock())
+    @mock.patch('dynamic_validation.models.Violation.objects.get_by_trigger_model', mock.MagicMock())
     def test_returns_empty_string_when_template_variable_does_not_exist(self):
         template = Template("""
             {% load dynamic_validation_tags %}

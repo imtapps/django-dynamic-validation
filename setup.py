@@ -6,7 +6,7 @@ REQUIREMENTS = [
     'django',
     'django-fields',
     'django-autoload',
-    'django-dynamic-rules',
+    'django-dynamic-rules>=0.2.0',
 ]
 
 TEST_REQUIREMENTS = [

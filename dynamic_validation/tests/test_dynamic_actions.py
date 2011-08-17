@@ -17,8 +17,8 @@ class BaseDynamicActionTests(unittest.TestCase):
 
     def setUp(self):
         self.rule_model = rule_models.Rule(pk=1)
-        self.validation_object = User.objects.create(username="test_admin")
-        self.action = BaseDynamicValidation(self.rule_model, self.validation_object)
+        self.trigger_model = User.objects.create(username="test_admin")
+        self.action = BaseDynamicValidation(self.rule_model, self.trigger_model)
 
     def test_accepted_status_is_unreviewed_by_default(self):
         self.assertEqual(models.ViolationStatus.unreviewed, self.action.accepted_status)
@@ -27,7 +27,7 @@ class BaseDynamicActionTests(unittest.TestCase):
         self.assertEqual(self.rule_model, self.action.rule_model)
 
     def test_saves_validation_object_on_instance(self):
-        self.assertEqual(self.validation_object, self.action.trigger_model)
+        self.assertEqual(self.trigger_model, self.action.trigger_model)
 
     @mock.patch.object(BaseDynamicValidation, 'get_current_violations')
     def test_run_calls_get_current_violations_with_args_and_kwargs(self, get_current_violations):
@@ -96,17 +96,17 @@ class BaseDynamicActionTests(unittest.TestCase):
         self.assertEqual(message, violation.message)
         self.assertEqual(violated_fields, violation.violated_fields)
         self.assertEqual(self.rule_model, violation.rule)
-        self.assertEqual(self.validation_object, violation.trigger_model)
+        self.assertEqual(self.trigger_model, violation.trigger_model)
         self.assertEqual(models.ViolationStatus.rejected, violation.acceptable)
 
-    @mock.patch.object(models.Violation.objects, 'get_violations_for_rule')
+    @mock.patch.object(models.Violation.objects, 'get_by_rule')
     def test_get_matching_violations_gets_existing_violations(self, get_violations):
         get_violations.return_value = []
         
         self.action.get_matching_violations([])
-        get_violations.assert_called_once_with(self.rule_model, self.validation_object)
+        get_violations.assert_called_once_with(self.rule_model, self.trigger_model)
 
-    @mock.patch.object(models.Violation.objects, 'get_violations_for_rule')
+    @mock.patch.object(models.Violation.objects, 'get_by_rule')
     def test_get_matching_violations_returns_list_violations_that_are_existing_and_current(self, get_violations):
         violation = mock.Mock(spec_set=models.Violation)
         violation2 = mock.Mock(spec_set=models.Violation)
@@ -115,7 +115,7 @@ class BaseDynamicActionTests(unittest.TestCase):
         matched_violations = self.action.get_matching_violations([violation])
         self.assertEqual([violation], matched_violations)
 
-    @mock.patch.object(models.Violation.objects, 'get_violations_for_rule')
+    @mock.patch.object(models.Violation.objects, 'get_by_rule')
     def test_get_matching_violations_deletes_existing_violations_that_are_not_current(self, get_violations):
         violation = mock.Mock(spec_set=models.Violation)
         violation2 = mock.Mock(spec_set=models.Violation)
