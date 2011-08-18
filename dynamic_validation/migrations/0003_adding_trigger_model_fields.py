@@ -12,7 +12,7 @@ class Migration(SchemaMigration):
         db.add_column('dynamic_validation_violation', 'trigger_content_type', self.gf('django.db.models.fields.related.ForeignKey')(default=-1, related_name='violations', to=orm['contenttypes.ContentType']), keep_default=False)
 
         # Adding field 'Violation.trigger_model_id'
-        db.add_column('dynamic_validation_violation', 'trigger_model_id', self.gf('django.db.models.fields.PositiveIntegerField')(default=-1, db_index=True), keep_default=False)
+        db.add_column('dynamic_validation_violation', 'trigger_model_id', self.gf('django.db.models.fields.PositiveIntegerField')(default=0, db_index=True), keep_default=False)
 
 
     def backwards(self, orm):

@@ -30,7 +30,7 @@ class Migration(SchemaMigration):
         db.add_column('dynamic_validation_violation', 'content_type', self.gf('django.db.models.fields.related.ForeignKey')(default=-1, to=orm['contenttypes.ContentType']), keep_default=False)
 
         # Adding field 'Violation.validation_object_id'
-        db.add_column('dynamic_validation_violation', 'validation_object_id', self.gf('django.db.models.fields.PositiveIntegerField')(default=-1, db_index=True), keep_default=False)
+        db.add_column('dynamic_validation_violation', 'validation_object_id', self.gf('django.db.models.fields.PositiveIntegerField')(default=0, db_index=True), keep_default=False)
 
         # Adding unique constraint on 'Violation', fields ['key', 'rule', 'content_type', 'validation_object_id']
         db.create_unique('dynamic_validation_violation', ['key', 'rule_id', 'content_type_id', 'validation_object_id'])
