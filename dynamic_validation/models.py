@@ -1,6 +1,5 @@
 from django.db import models
 from django.contrib.contenttypes import generic
-from django.contrib.contenttypes.models import ContentType
 
 from django_fields import fields as helper_fields
 
@@ -93,6 +92,7 @@ class Violation(models.Model):
 
     class Meta(object):
         unique_together = ('trigger_model_id', 'trigger_content_type', 'rule', 'key')
+        ordering = ('acceptable',)
 
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
