@@ -61,7 +61,7 @@ class ViolationModelTests(unittest.TestCase):
 
     def test_validation_object_rule_and_key_are_unique(self):
         self.assertItemsEqual(
-            [('trigger_model_id', 'trigger_content_type', 'rule', 'key')],
+            [('trigger_model_id', 'trigger_content_type', 'rule', '_key')],
             models.Violation()._meta.unique_together)
 
     def test_orders_by_acceptable_status_by_default(self):
@@ -100,6 +100,15 @@ class ViolationModelTests(unittest.TestCase):
     def test_violations_are_not_equal_when_other_object_is_not_violation_model(self):
         violation = get_violation()
         self.assertNotEqual(violation, rule_models.Rule())
+
+    def test_setting_key_property_sets_key_field_value_as_string(self):
+        violation = models.Violation(key=1)
+        self.assertEqual('1', violation._key)
+
+    def test_getting_key_gives_key_value(self):
+        violation = models.Violation(_key="A Key")
+        self.assertEqual("A Key", violation.key)
+
 
 class ViolationWrapperTests(unittest.TestCase):
 

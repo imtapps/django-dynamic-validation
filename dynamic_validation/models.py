@@ -75,12 +75,17 @@ class ViolationStatus(object):
     rejected = False
 
 class Violation(models.Model):
+    """
+    They '_key' field should be something that uniquely identifies the
+    violation within the trigger model and rule. You can use the 'key'
+    property to set the '_key' field forcing the value to a string.
+    """
     trigger_content_type = models.ForeignKey('contenttypes.ContentType', related_name='violations')
     trigger_model_id = models.PositiveIntegerField(db_index=True)
     trigger_model = generic.GenericForeignKey(fk_field='trigger_model_id', ct_field='trigger_content_type')
     
     rule = models.ForeignKey('dynamic_rules.Rule')
-    key = models.CharField(max_length=30, help_text="A unique key to make this violation object unique with the rule.")
+    _key = models.CharField(max_length=30, help_text="A unique key to make this violation object unique with the rule.")
     message = models.CharField(max_length=100)
     acceptable = models.NullBooleanField()
     violated_fields = helper_fields.PickleField()
@@ -91,8 +96,16 @@ class Violation(models.Model):
         return self.message
 
     class Meta(object):
-        unique_together = ('trigger_model_id', 'trigger_content_type', 'rule', 'key')
+        unique_together = ('trigger_model_id', 'trigger_content_type', 'rule', '_key')
         ordering = ('acceptable',)
+
+    @property
+    def key(self):
+        return self._key
+
+    @key.setter
+    def key(self, val):
+        self._key = str(val)
 
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
