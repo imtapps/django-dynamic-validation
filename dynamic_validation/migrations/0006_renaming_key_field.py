@@ -17,7 +17,7 @@ class Migration(SchemaMigration):
         db.delete_column('dynamic_validation_violation', '_key')
 
         # Changing field 'Violation.key'
-        db.alter_column('dynamic_validation_violation', 'key', self.gf('django.db.models.fields.CharField')(default=None, max_length=30))
+        db.alter_column('dynamic_validation_violation', 'key', self.gf('django.db.models.fields.CharField')(default='', max_length=30))
 
         # Adding unique constraint on 'Violation', fields ['key', 'trigger_model_id', 'trigger_content_type', 'rule']
         db.create_unique('dynamic_validation_violation', ['key', 'trigger_model_id', 'trigger_content_type_id', 'rule_id'])
