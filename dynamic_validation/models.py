@@ -86,7 +86,7 @@ class Violation(models.Model):
     
     rule = models.ForeignKey('dynamic_rules.Rule')
     _key = models.CharField(max_length=30, help_text="A unique key to make this violation object unique with the rule.")
-    message = models.CharField(max_length=100)
+    message = models.CharField(max_length=300)
     acceptable = models.NullBooleanField()
     violated_fields = helper_fields.PickleField()
 
