@@ -9,13 +9,15 @@ from dynamic_rules import admin as rule_admin
 
 from sample import models
 
+
 class TeamAdmin(admin.ModelAdmin):
     list_display = ('name', 'league')
     list_filter = ('league',)
 
+
 class PlayerAdmin(admin.ModelAdmin):
     list_display = ('name', 'age', 'gender', 'team', )
-    list_filter = ('team','team__league')
+    list_filter = ('team', 'team__league')
 
 
 class RuleForm(admin_forms.RuleForm):
@@ -35,8 +37,9 @@ class RuleForm(admin_forms.RuleForm):
         model = rule_models.Rule
         fields = ('name', 'key', 'group_object_id')
 
+
 class RuleAdmin(rule_admin.RuleAdmin):
-    form = RuleForm
+    form = RuleForms
     list_display = ('name', 'group_obj')
 
     def group_obj(self, obj):
@@ -49,4 +52,3 @@ admin.site.register(rule_models.Rule, RuleAdmin)
 admin.site.register(models.League)
 admin.site.register(models.Team, TeamAdmin)
 admin.site.register(models.Player, PlayerAdmin)
-

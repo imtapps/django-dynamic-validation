@@ -4,6 +4,7 @@ from dynamic_rules import models as rule_models
 
 from sample import models as sample_models
 
+
 class Index(ListView):
     template_name = 'sample/index.html'
     model = sample_models.League

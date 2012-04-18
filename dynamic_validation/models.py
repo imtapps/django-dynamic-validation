@@ -5,6 +5,7 @@ from django_fields import fields as helper_fields
 
 from dynamic_rules.ext import RuleExtensionManager
 
+
 __all__ = ('Violation', )
 
 
@@ -63,16 +64,18 @@ class ViolationsWrapper(object):
         else:
             return "ok"
 
-    
+
 class ViolationManager(RuleExtensionManager):
 
     def get_unacceptable_violations_for_object(self, trigger_model):
         return self.get_by_trigger_model(trigger_model).exclude(acceptable=ViolationStatus.accepted)
 
+
 class ViolationStatus(object):
     unreviewed = None
     accepted = True
     rejected = False
+
 
 class Violation(models.Model):
     """
@@ -83,7 +86,7 @@ class Violation(models.Model):
     trigger_content_type = models.ForeignKey('contenttypes.ContentType', related_name='violations')
     trigger_model_id = models.PositiveIntegerField(db_index=True)
     trigger_model = generic.GenericForeignKey(fk_field='trigger_model_id', ct_field='trigger_content_type')
-    
+
     rule = models.ForeignKey('dynamic_rules.Rule')
     _key = models.CharField(max_length=30, help_text="A unique key to make this violation object unique with the rule.")
     message = models.CharField(max_length=300)
@@ -110,7 +113,7 @@ class Violation(models.Model):
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
             return False
-        
+
         return all([
             self.trigger_model_id == other.trigger_model_id,
             self.trigger_content_type == other.trigger_content_type,

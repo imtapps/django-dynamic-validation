@@ -102,7 +102,7 @@ class BaseDynamicActionTests(unittest.TestCase):
     @mock.patch.object(models.Violation.objects, 'get_by_rule')
     def test_get_matching_violations_gets_existing_violations(self, get_violations):
         get_violations.return_value = []
-        
+
         self.action.get_matching_violations([])
         get_violations.assert_called_once_with(self.rule_model, self.trigger_model)
 

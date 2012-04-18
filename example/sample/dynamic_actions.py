@@ -21,7 +21,7 @@ class GenderRatio(BaseDynamicValidation):
 
         male_players = self.team.players.filter(gender=1).count()
         female_players = self.team.players.filter(gender=2).count()
-        
+
         all_players = (male_players + female_players) * 1.0
         male_percent = male_players / all_players
         female_percent = female_players / all_players
@@ -33,6 +33,7 @@ class GenderRatio(BaseDynamicValidation):
         elif female_percent > acceptable_percent:
             message = "Violated... %s female over coed percent allowed (%s)" % (female_percent, acceptable_percent)
             return self.create_violation(self.team.pk, message, violation_fields)
+
 
 @site.register
 class LimitNumberOfPlayersUnderAge(BaseDynamicValidation):
@@ -55,6 +56,7 @@ class LimitNumberOfPlayersUnderAge(BaseDynamicValidation):
         if players_under_age > player_count_limit:
             message = "%s can only have %s players under %s. (it has %s)" % (self.team, player_count_limit, min_age, players_under_age)
             return self.create_violation(self.team.pk, message, violation_fields)
+
 
 @site.register
 class RangeOfAveragePlayerAge(BaseDynamicValidation):

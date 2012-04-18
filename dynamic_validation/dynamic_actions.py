@@ -4,8 +4,10 @@ from dynamic_validation.models import Violation, ViolationStatus
 
 __all__ = ('BadViolationType', 'BaseDynamicValidation')
 
+
 class BadViolationType(TypeError):
     pass
+
 
 class BaseDynamicValidation(BaseDynamicAction):
     accepted_status = ViolationStatus.unreviewed

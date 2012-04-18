@@ -7,12 +7,12 @@ from dynamic_rules import models as rule_models
 from dynamic_validation import models
 from dynamic_validation.tests.utils import get_violation
 
+
 __all__ = (
     'ViolationManagerTests',
     'ViolationModelTests',
     'ViolationWrapperTests',
 )
-
 
 
 class ViolationManagerTests(unittest.TestCase):
@@ -116,9 +116,9 @@ class ViolationWrapperTests(unittest.TestCase):
         violation_one = get_violation(key="123")
         violation_two = get_violation(key="ABC")
         violation_queryset = [violation_one, violation_two]
-        violations = models.ViolationsWrapper(violation_queryset)
-        for qs, v in zip(violation_queryset, violations):
-            self.assertEqual(qs, v)
+        violations_wrapper = models.ViolationsWrapper(violation_queryset)
+        for qs, violations in zip(violation_queryset, violations_wrapper):
+            self.assertEqual(qs, violations)
 
     def test_len_on_wrapper_returns_len_of_queryset(self):
         violation_queryset = ["one", "two"]

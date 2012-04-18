@@ -1,10 +1,12 @@
 from django.db import models
 
+
 class League(models.Model):
     name = models.CharField(max_length=20)
 
     def __unicode__(self):
         return self.name
+
 
 class Team(models.Model):
     name = models.CharField(max_length=20)
@@ -12,6 +14,7 @@ class Team(models.Model):
 
     def __unicode__(self):
         return u"%s (%s)" % (self.name, self.league)
+
 
 class Player(models.Model):
     name = models.CharField(max_length=20)

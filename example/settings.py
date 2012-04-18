@@ -35,6 +35,12 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
 )
 
+
+PROJECT_APPS = (
+    'dynamic_validation',
+    'sample',
+)
+
 INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -44,9 +50,7 @@ INSTALLED_APPS = (
 
     'djadmin_ext',
     'dynamic_rules',
-    'dynamic_validation',
-    'sample',
-)
+) + PROJECT_APPS
 
 try:
     import south
@@ -57,9 +61,8 @@ except ImportError:
 
 try:
     import django_jenkins
-    PROJECT_APPS = [app for app in INSTALLED_APPS if not app.startswith('django.contrib')]
 
-    INSTALLED_APPS = INSTALLED_APPS + ('django_jenkins',)
+    INSTALLED_APPS += ('django_jenkins',)
     JENKINS_TASKS = (
         'django_jenkins.tasks.django_tests',
         'django_jenkins.tasks.run_pylint',
