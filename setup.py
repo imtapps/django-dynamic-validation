@@ -17,6 +17,7 @@ TEST_REQUIREMENTS = [
     'django-jenkins',
     'pep8',
     'pyflakes',
+    'pylint',
 ]
 
 def do_setup():
