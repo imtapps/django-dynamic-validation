@@ -18,6 +18,7 @@ TEST_REQUIREMENTS = [
     'pep8',
     'pyflakes',
     'pylint',
+    'coverage',
 ]
 
 def do_setup():
