@@ -14,11 +14,11 @@ REQUIREMENTS = [
 
 TEST_REQUIREMENTS = [
     'mock',
-    'django-jenkins',
     'pep8',
     'pyflakes',
-    'pylint',
     'coverage',
+    'django_nose',
+    'nosexcover',
 ]
 
 def do_setup():
@@ -33,7 +33,6 @@ def do_setup():
         packages=find_packages(exclude=['example']),
         install_requires=REQUIREMENTS,
         tests_require=TEST_REQUIREMENTS,
-        test_suite='runtests.runtests',
         zip_safe=False,
         classifiers = [
             "Development Status :: 3 - Alpha",
@@ -75,12 +74,11 @@ class InstallDependencies(Command):
         replace all > or < in the dependencies so the system does not
         try to redirect stdin or stdout from/to a file.
         """
-        command_line_deps = ' '.join(TEST_REQUIREMENTS)
+        command_line_deps = ' '.join(REQUIREMENTS + TEST_REQUIREMENTS)
         return re.sub(re.compile(r'([<>])'), r'\\\1', command_line_deps)
 
     def run(self):
-        os.system("pip install ./")
-        os.system("pip install %s" % self.get_test_dependencies())
+        os.system("pip install %s -i http://localhost:8888/simple/" % self.get_test_dependencies())
 
 
 if __name__ == '__main__':

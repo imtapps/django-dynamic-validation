@@ -10,3 +10,6 @@ dist
 
 
 jenkins_reports/*
+.coverage
+coverage.xml
+nosetests.xml
