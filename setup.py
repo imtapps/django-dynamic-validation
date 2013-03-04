@@ -6,7 +6,7 @@ from setuptools import find_packages
 from dynamic_validation import VERSION
 
 REQUIREMENTS = [
-    'django',
+    'django<1.5.0',
     'django-fields',
     'django-autoload',
     'django-dynamic-rules>=0.2.0',
@@ -78,7 +78,7 @@ class InstallDependencies(Command):
         return re.sub(re.compile(r'([<>])'), r'\\\1', command_line_deps)
 
     def run(self):
-        os.system("pip install %s -i http://localhost:8888/simple/" % self.get_test_dependencies())
+        os.system("pip install %s" % self.get_test_dependencies())
 
 
 if __name__ == '__main__':
