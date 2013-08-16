@@ -92,6 +92,7 @@ class Violation(models.Model):
     message = models.CharField(max_length=300)
     acceptable = models.NullBooleanField()
     violated_fields = helper_fields.PickleField()
+    silent = models.BooleanField(default=False)
 
     objects = ViolationManager()
 

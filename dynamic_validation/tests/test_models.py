@@ -109,6 +109,13 @@ class ViolationModelTests(unittest.TestCase):
         violation = models.Violation(_key="A Key")
         self.assertEqual("A Key", violation.key)
 
+    def test_silent_is_false_by_default(self):
+        violation = models.Violation()
+        self.assertEqual(False, violation.silent)
+
+    def test_silent_is_true_when_set_to_true(self):
+        violation = models.Violation(silent=True)
+        self.assertEqual(True, violation.silent)
 
 class ViolationWrapperTests(unittest.TestCase):
 
