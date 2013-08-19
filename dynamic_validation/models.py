@@ -67,8 +67,8 @@ class ViolationsWrapper(object):
 
 class ViolationManager(RuleExtensionManager):
 
-    def get_unacceptable_violations_for_object(self, trigger_model):
-        return self.get_by_trigger_model(trigger_model).exclude(acceptable=ViolationStatus.accepted)
+    def get_unacceptable_violations_for_object(self, trigger_model, silent=None):
+        return self.get_by_trigger_model(trigger_model, silent_indicator=silent).exclude(acceptable=ViolationStatus.accepted)
 
 
 class ViolationStatus(object):
