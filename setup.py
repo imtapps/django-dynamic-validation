@@ -25,8 +25,8 @@ def do_setup():
     setup(
         name="django-dynamic-validation",
         version=VERSION,
-        author="Matthew J. Morrison & Aaron Madison",
-        author_email="mattjmorrison@mattjmorrison.com",
+        author="IMT Computer Services",
+        author_email="webadmin@imtapps.com",
         description="Define user generated validation requirements for django models.",
         long_description=open('README.txt', 'r').read(),
         url="https://github.com/imtapps/django-dynamic-validation",

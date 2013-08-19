@@ -99,6 +99,29 @@ class BaseDynamicActionTests(unittest.TestCase):
         self.assertEqual(self.trigger_model, violation.trigger_model)
         self.assertEqual(models.ViolationStatus.rejected, violation.acceptable)
 
+    def test_create_violation_returns_unsaved_rule_violation_with_silent_indicator_sets_to_value_of_indicator(self):
+        key = "key"
+        message = "message"
+        violated_fields = {'my_field': 'value'}
+        self.action.accepted_status = models.ViolationStatus.rejected
+
+        violation = self.action.create_violation(
+            key=key,
+            message=message,
+            violated_fields=violated_fields,
+            silent=True
+        )
+
+        self.assertIsInstance(violation, models.Violation)
+        self.assertEqual(None, violation.pk)
+        self.assertEqual(key, violation.key)
+        self.assertEqual(message, violation.message)
+        self.assertEqual(violated_fields, violation.violated_fields)
+        self.assertEqual(self.rule_model, violation.rule)
+        self.assertEqual(self.trigger_model, violation.trigger_model)
+        self.assertEqual(models.ViolationStatus.rejected, violation.acceptable)
+        self.assertEqual(True, violation.silent)
+
     @mock.patch.object(models.Violation.objects, 'get_by_rule')
     def test_get_matching_violations_gets_existing_violations(self, get_violations):
         get_violations.return_value = []

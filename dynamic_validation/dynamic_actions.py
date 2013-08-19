@@ -58,7 +58,7 @@ class BaseDynamicValidation(BaseDynamicAction):
             else:
                 violation.save()
 
-    def create_violation(self, key, message, violated_fields):
+    def create_violation(self, key, message, violated_fields, silent=False):
         return Violation(
             rule=self.rule_model,
             trigger_model=self.trigger_model,
@@ -66,4 +66,5 @@ class BaseDynamicValidation(BaseDynamicAction):
             message=message,
             violated_fields=violated_fields,
             acceptable=self.accepted_status,
+            silent=silent
         )
