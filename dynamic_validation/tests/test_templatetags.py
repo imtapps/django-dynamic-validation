@@ -22,7 +22,7 @@ class DynamicViolationTagTests(unittest.TestCase):
         get_by_trigger_model.return_value = ['one', 'two', 'three']
 
         result = template.render(Context(dict(validation_object=validation_object)))
-        get_by_trigger_model.assert_called_once_with(validation_object)
+        get_by_trigger_model.assert_called_once_with(validation_object, None)
         self.assertTrue("one" in result)
         self.assertTrue("two" in result)
         self.assertTrue("three" in result)
@@ -58,7 +58,7 @@ class DynamicViolationTagTests(unittest.TestCase):
         get_by_trigger_model.return_value = ['one', 'two', 'three']
 
         result = template.render(Context(dict(get_validation_obj=get_validation_object)))
-        get_by_trigger_model.assert_called_once_with(validation_object)
+        get_by_trigger_model.assert_called_once_with(validation_object, None)
         self.assertTrue("one" in result)
         self.assertTrue("two" in result)
         self.assertTrue("three" in result)
@@ -70,6 +70,20 @@ class DynamicViolationTagTests(unittest.TestCase):
 
                 {% violations_for validation_object %}
             """)
+
+    def test_calling_template_tag_with_silent_indicator_wont_blow_up(self):
+        with self.assertRaises(AssertionError):
+            with self.assertRaises(TemplateSyntaxError):
+                template = Template("""
+                    {% load dynamic_validation_tags %}
+
+                    {% violations_for get_validation_obj as violations silent_indicator %}
+                    {% for violation in violations %}
+                        {{ violation }}
+                    {% endfor %}
+                """)
+
+        result = template.render(Context(dict(silent_indicator=True)))
 
     def test_calling_template_tag_without_validation_object_raises_template_syntax_error(self):
         with self.assertRaises(TemplateSyntaxError):

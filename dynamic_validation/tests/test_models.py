@@ -42,7 +42,17 @@ class ViolationManagerTests(unittest.TestCase):
         manager = mock.Mock(spec_set=models.ViolationManager)
 
         violations = models.ViolationManager.get_by_rule(manager, rule, self.trigger_model)
-        manager.get_by_trigger_model.assert_called_once_with(self.trigger_model)
+        manager.get_by_trigger_model.assert_called_once_with(self.trigger_model, None)
+        base_query = manager.get_by_trigger_model.return_value
+        base_query.filter.assert_called_once_with(rule=rule)
+        self.assertEqual(base_query.filter.return_value, violations)
+
+    def test_violations_queries_on_validation_object_and_rule_model_and_silent_indicator(self):
+        rule = rule_models.Rule(pk=1)
+        manager = mock.Mock(spec_set=models.ViolationManager)
+
+        violations = models.ViolationManager.get_by_rule(manager, rule, self.trigger_model, True)
+        manager.get_by_trigger_model.assert_called_once_with(self.trigger_model, True)
         base_query = manager.get_by_trigger_model.return_value
         base_query.filter.assert_called_once_with(rule=rule)
         self.assertEqual(base_query.filter.return_value, violations)
