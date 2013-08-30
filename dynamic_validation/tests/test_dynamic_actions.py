@@ -108,8 +108,7 @@ class BaseDynamicActionTests(unittest.TestCase):
         violation = self.action.create_violation(
             key=key,
             message=message,
-            violated_fields=violated_fields,
-            silent=True
+            violated_fields=violated_fields
         )
 
         self.assertIsInstance(violation, models.Violation)
@@ -120,7 +119,6 @@ class BaseDynamicActionTests(unittest.TestCase):
         self.assertEqual(self.rule_model, violation.rule)
         self.assertEqual(self.trigger_model, violation.trigger_model)
         self.assertEqual(models.ViolationStatus.rejected, violation.acceptable)
-        self.assertEqual(True, violation.silent)
 
     @mock.patch.object(models.Violation.objects, 'get_by_rule')
     def test_get_matching_violations_gets_existing_violations(self, get_violations):

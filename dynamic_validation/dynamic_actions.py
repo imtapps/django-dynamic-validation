@@ -1,6 +1,8 @@
 
-from dynamic_rules.dynamic_actions import BaseDynamicAction
 from dynamic_validation.models import Violation, ViolationStatus
+
+from dynamic_rules.dynamic_actions import BaseDynamicAction
+
 
 __all__ = ('BadViolationType', 'BaseDynamicValidation')
 
@@ -58,7 +60,7 @@ class BaseDynamicValidation(BaseDynamicAction):
             else:
                 violation.save()
 
-    def create_violation(self, key, message, violated_fields, silent=False):
+    def create_violation(self, key, message, violated_fields):
         return Violation(
             rule=self.rule_model,
             trigger_model=self.trigger_model,
@@ -66,5 +68,4 @@ class BaseDynamicValidation(BaseDynamicAction):
             message=message,
             violated_fields=violated_fields,
             acceptable=self.accepted_status,
-            silent=silent
         )

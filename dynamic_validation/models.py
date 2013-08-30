@@ -1,9 +1,9 @@
-from django.db import models
-from django.contrib.contenttypes import generic
-
-from django_fields import fields as helper_fields
 
 from dynamic_rules.ext import RuleExtensionManager
+
+from django.db import models
+from django.contrib.contenttypes import generic
+from django_fields import fields as helper_fields
 
 
 __all__ = ('Violation', )
@@ -68,7 +68,7 @@ class ViolationsWrapper(object):
 class ViolationManager(RuleExtensionManager):
 
     def get_unacceptable_violations_for_object(self, trigger_model, silent=None):
-        return self.get_by_trigger_model(trigger_model, silent_indicator=silent).exclude(acceptable=ViolationStatus.accepted)
+        return self.get_by_trigger_model(trigger_model).exclude(acceptable=ViolationStatus.accepted)
 
 
 class ViolationStatus(object):
@@ -92,7 +92,6 @@ class Violation(models.Model):
     message = models.CharField(max_length=300)
     acceptable = models.NullBooleanField()
     violated_fields = helper_fields.PickleField()
-    silent = models.BooleanField(default=False)
 
     objects = ViolationManager()
 

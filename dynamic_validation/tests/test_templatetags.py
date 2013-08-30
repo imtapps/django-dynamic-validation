@@ -1,7 +1,7 @@
-import mock
-from django.utils import unittest
 
+from django.utils import unittest
 from django.template import Context, Template, TemplateSyntaxError
+import mock
 
 __all__ = ('DynamicViolationTagTests', )
 
@@ -22,7 +22,7 @@ class DynamicViolationTagTests(unittest.TestCase):
         get_by_trigger_model.return_value = ['one', 'two', 'three']
 
         result = template.render(Context(dict(validation_object=validation_object)))
-        get_by_trigger_model.assert_called_once_with(validation_object, None)
+        get_by_trigger_model.assert_called_once_with(validation_object)
         self.assertTrue("one" in result)
         self.assertTrue("two" in result)
         self.assertTrue("three" in result)
@@ -58,7 +58,7 @@ class DynamicViolationTagTests(unittest.TestCase):
         get_by_trigger_model.return_value = ['one', 'two', 'three']
 
         result = template.render(Context(dict(get_validation_obj=get_validation_object)))
-        get_by_trigger_model.assert_called_once_with(validation_object, None)
+        get_by_trigger_model.assert_called_once_with(validation_object)
         self.assertTrue("one" in result)
         self.assertTrue("two" in result)
         self.assertTrue("three" in result)
@@ -71,19 +71,36 @@ class DynamicViolationTagTests(unittest.TestCase):
                 {% violations_for validation_object %}
             """)
 
-    def test_calling_template_tag_with_silent_indicator_wont_blow_up(self):
-        with self.assertRaises(AssertionError):
-            with self.assertRaises(TemplateSyntaxError):
-                template = Template("""
-                    {% load dynamic_validation_tags %}
+    @mock.patch('dynamic_validation.models.Violation.objects.get_by_trigger_model')
+    def test_calling_template_tag_with_silent_indicator_wont_blow_up(self, get_by_trigger_model):
+        template = Template("""
+            {% load dynamic_validation_tags %}
 
-                    {% violations_for get_validation_obj as violations silent_indicator %}
-                    {% for violation in violations %}
-                        {{ violation }}
-                    {% endfor %}
-                """)
+            {% violations_for get_validation_obj as violations silent_indicator %}
+            {% for violation in violations %}
+                {{ violation }}
+            {% endfor %}
+        """)
 
-        result = template.render(Context(dict(silent_indicator=True)))
+        validation_object = mock.sentinel.validation_object
+
+        def get_validation_object():
+            return validation_object
+        
+        violation_one = mock.Mock(rule=mock.Mock(dynamic_fields={'silent': True}))
+        violation_one.__str__ = mock.Mock(return_value="Joel")
+        violation_two = mock.Mock(rule=mock.Mock(dynamic_fields={'silent': False}))
+        violation_two.__str__ = mock.Mock(return_value="Matt")
+        violation_three = mock.Mock(rule=mock.Mock(dynamic_fields={'silent': False}))
+        violation_three.__str__ = mock.Mock(return_value="Jarrod")
+
+        get_by_trigger_model.return_value = [violation_one, violation_two, violation_three]
+
+        result = template.render(Context(dict(get_validation_obj=get_validation_object, silent_indicator=True)))
+        get_by_trigger_model.assert_called_once_with(validation_object)
+        self.assertTrue("Matt" in result)
+        self.assertTrue("Jarrod" in result)
+        self.assertTrue("Joel" not in result)
 
     def test_calling_template_tag_without_validation_object_raises_template_syntax_error(self):
         with self.assertRaises(TemplateSyntaxError):

@@ -42,17 +42,17 @@ class ViolationManagerTests(unittest.TestCase):
         manager = mock.Mock(spec_set=models.ViolationManager)
 
         violations = models.ViolationManager.get_by_rule(manager, rule, self.trigger_model)
-        manager.get_by_trigger_model.assert_called_once_with(self.trigger_model, None)
+        manager.get_by_trigger_model.assert_called_once_with(self.trigger_model)
         base_query = manager.get_by_trigger_model.return_value
         base_query.filter.assert_called_once_with(rule=rule)
         self.assertEqual(base_query.filter.return_value, violations)
 
-    def test_violations_queries_on_validation_object_and_rule_model_and_silent_indicator(self):
+    def test_violations_queries_on_validation_object_and_rule_model(self):
         rule = rule_models.Rule(pk=1)
         manager = mock.Mock(spec_set=models.ViolationManager)
 
-        violations = models.ViolationManager.get_by_rule(manager, rule, self.trigger_model, True)
-        manager.get_by_trigger_model.assert_called_once_with(self.trigger_model, True)
+        violations = models.ViolationManager.get_by_rule(manager, rule, self.trigger_model)
+        manager.get_by_trigger_model.assert_called_once_with(self.trigger_model)
         base_query = manager.get_by_trigger_model.return_value
         base_query.filter.assert_called_once_with(rule=rule)
         self.assertEqual(base_query.filter.return_value, violations)
@@ -61,16 +61,7 @@ class ViolationManagerTests(unittest.TestCase):
         manager = mock.Mock(spec_set=models.ViolationManager)
         violations = models.ViolationManager.get_unacceptable_violations_for_object(manager, self.trigger_model)
 
-        manager.get_by_trigger_model.assert_called_once_with(self.trigger_model, silent_indicator=None)
-        exclude = manager.get_by_trigger_model.return_value.exclude
-        exclude.assert_called_once_with(acceptable=models.ViolationStatus.accepted)
-        self.assertEqual(exclude.return_value, violations)
-
-    def test_unacceptable_violations_for_object_filters_will_filter_out_silent_violations_if_silent_indicator_passed_in(self):
-        manager = mock.Mock(spec_set=models.ViolationManager)
-        violations = models.ViolationManager.get_unacceptable_violations_for_object(manager, self.trigger_model, silent=True)
-
-        manager.get_by_trigger_model.assert_called_once_with(self.trigger_model, silent_indicator=True)
+        manager.get_by_trigger_model.assert_called_once_with(self.trigger_model)
         exclude = manager.get_by_trigger_model.return_value.exclude
         exclude.assert_called_once_with(acceptable=models.ViolationStatus.accepted)
         self.assertEqual(exclude.return_value, violations)
@@ -128,13 +119,6 @@ class ViolationModelTests(unittest.TestCase):
         violation = models.Violation(_key="A Key")
         self.assertEqual("A Key", violation.key)
 
-    def test_silent_is_false_by_default(self):
-        violation = models.Violation()
-        self.assertEqual(False, violation.silent)
-
-    def test_silent_is_true_when_set_to_true(self):
-        violation = models.Violation(silent=True)
-        self.assertEqual(True, violation.silent)
 
 class ViolationWrapperTests(unittest.TestCase):
 

@@ -36,7 +36,9 @@ class ViolationsForNode(Node):
         silent_indicator = Variable(self.silent_indicator).resolve(context) if self.silent_indicator else None
         try:
             trigger_model = self.trigger_model.resolve(context)
-            violations = models.Violation.objects.get_by_trigger_model(trigger_model, silent_indicator)
+            violations = models.Violation.objects.get_by_trigger_model(trigger_model)
+            if silent_indicator:                                                                                                                                            
+                violations = [v for v in violations if not v.rule.dynamic_fields.get('silent')]                                                                           
             context[self.var_name] = models.ViolationsWrapper(violations)
         except VariableDoesNotExist:
             pass
