@@ -3,8 +3,6 @@ import re
 from distutils.core import Command, setup
 from setuptools import find_packages
 
-from dynamic_validation import VERSION
-
 REQUIREMENTS = [
     'django<1.5.0',
     'django-fields',
@@ -24,7 +22,7 @@ TEST_REQUIREMENTS = [
 def do_setup():
     setup(
         name="django-dynamic-validation",
-        version=VERSION,
+        version='1.2.4',
         author="IMT Computer Services",
         author_email="webadmin@imtapps.com",
         description="Define user generated validation requirements for django models.",

@@ -1,7 +1,9 @@
 import mock
+from django import test
 
 from django.contrib.contenttypes.models import ContentType
 from django.utils import unittest
+from django.contrib.auth.models import User
 
 from dynamic_rules import models as rule_models
 from dynamic_validation import models
@@ -57,14 +59,26 @@ class ViolationManagerTests(unittest.TestCase):
         base_query.filter.assert_called_once_with(rule=rule)
         self.assertEqual(base_query.filter.return_value, violations)
 
-    def test_unacceptable_violations_for_object_filters(self):
-        manager = mock.Mock(spec_set=models.ViolationManager)
-        violations = models.ViolationManager.get_unacceptable_violations_for_object(manager, self.trigger_model)
 
-        manager.get_by_trigger_model.assert_called_once_with(self.trigger_model)
-        exclude = manager.get_by_trigger_model.return_value.exclude
-        exclude.assert_called_once_with(acceptable=models.ViolationStatus.accepted)
-        self.assertEqual(exclude.return_value, violations)
+class ViolationManagerIntegrationTests(test.TestCase):
+
+    def test_violations_with_silent_flag_on_rule_are_not_unacceptable(self):
+        user = User.objects.create()
+        rule = rule_models.Rule.objects.create(group_object=user, dynamic_fields={'silent': True})
+        models.Violation.objects.create(rule=rule, trigger_model=user)
+        self.assertEqual(0, len(models.Violation.objects.get_unacceptable_violations_for_object(user)))
+
+    def test_violations_without_silent_flag_are_unacceptable(self):
+        user = User.objects.create()
+        rule = rule_models.Rule.objects.create(group_object=user, dynamic_fields={})
+        models.Violation.objects.create(rule=rule, trigger_model=user)
+        self.assertEqual(1, len(models.Violation.objects.get_unacceptable_violations_for_object(user)))
+
+    def test_violations_with_silent_flag_false_are_unacceptable(self):
+        user = User.objects.create()
+        rule = rule_models.Rule.objects.create(group_object=user, dynamic_fields={'silent': False})
+        models.Violation.objects.create(rule=rule, trigger_model=user)
+        self.assertEqual(1, len(models.Violation.objects.get_unacceptable_violations_for_object(user)))
 
 
 class ViolationModelTests(unittest.TestCase):

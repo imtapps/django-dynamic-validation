@@ -68,7 +68,12 @@ class ViolationsWrapper(object):
 class ViolationManager(RuleExtensionManager):
 
     def get_unacceptable_violations_for_object(self, trigger_model, silent=None):
-        return self.get_by_trigger_model(trigger_model).exclude(acceptable=ViolationStatus.accepted)
+        violations = self.get_by_trigger_model(trigger_model).exclude(acceptable=ViolationStatus.accepted)
+        unacceptable = []
+        for violation in violations:
+            if not violation.rule.dynamic_fields.get("silent", False):
+                unacceptable.append(violation)
+        return unacceptable
 
 
 class ViolationStatus(object):
